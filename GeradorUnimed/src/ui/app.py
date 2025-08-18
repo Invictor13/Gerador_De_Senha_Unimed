@@ -48,6 +48,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.title("Gerador de Senhas e Frases - UNIMED (Refatorado)")
 
         # --- Configuração da Janela ---
+        self.geometry("1024x768")
         self.wm_state('zoomed') # Inicia maximizado
         self.bind("<Escape>", self.exit_fullscreen)
 
@@ -101,7 +102,6 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         # O frame interno agora controla o padding e o conteúdo, mas não o tamanho total
         content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
         content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10, expand=True, fill="both")
-        content_frame.grid_propagate(False) # Impede que os filhos alterem o tamanho do frame
         content_frame.grid_rowconfigure(2, weight=1) # Permite que o notebook expanda
         content_frame.grid_columnconfigure(0, weight=1)
 
@@ -130,11 +130,6 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         senha_tab = notebook.add("SENHA")
         frase_tab = notebook.add("FRASE-SENHA")
-
-        # Força as abas a terem a mesma altura mínima
-        # A altura é um valor empírico para acomodar a aba de Frase-Senha que é maior
-        senha_tab.configure(height=350)
-        frase_tab.configure(height=350)
 
         self.tab_senha = PasswordTab(senha_tab, self)
         self.tab_frase = PassphraseTab(frase_tab, self)
