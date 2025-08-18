@@ -17,7 +17,7 @@ import pyperclip
 from PIL import Image
 
 from src.config import CONFIG
-from src.logic import PasswordGenerator, SettingsManager
+from src.logic import PasswordGenerator, SettingsManager, check_pwned
 from src.ui.components import PassphraseTab, PasswordTab
 from src.ui.utils import Tooltip, UnimedWordAnimator
 
@@ -129,6 +129,10 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def animate_generation(self, button, target_var, length, final_callback):
         """Anima o campo de texto antes de mostrar o resultado final."""
         button.configure(state="disabled")
+        # Reset security seal before generating a new password
+        if "senha" in str(target_var):
+            self.tab_senha.security_seal.configure(text_color="grey")
+
         char_pool = string.ascii_letters + string.digits + string.punctuation
 
         def animate_step(steps_left):
@@ -155,6 +159,12 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             self.vars["caracteres_especiais_var"].get()
         )
         self.vars["senha_gerada"].set(senha)
+
+        # --- Verificação de Vazamento ---
+        is_pwned = check_pwned(senha)
+        seal_color = "#FF4141" if is_pwned else "#00A34D"
+        self.tab_senha.security_seal.configure(text_color=seal_color)
+
 
         # --- Lógica da Barra de Entropia ---
         max_entropy = 128.0

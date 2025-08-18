@@ -7,11 +7,14 @@ da aplicação, como a geração de senhas e o gerenciamento de configurações.
 Não há código de interface gráfica aqui.
 """
 
+import hashlib
 import json
 import math
 import os
 import secrets
 import string
+
+import requests
 
 from src.config import CONFIG
 
@@ -92,3 +95,28 @@ class PasswordGenerator:
             return passphrase, entropy
         except IndexError:
             return "Lista de palavras vazia!", 0
+
+def check_pwned(password: str) -> bool:
+    """
+    Verifica se a senha aparece em vazamentos de dados usando a API Pwned Passwords.
+
+    Args:
+        password: A senha para verificar.
+
+    Returns:
+        True se a senha foi encontrada em um vazamento, False caso contrário.
+    """
+    if not password:
+        return False
+    try:
+        sha1_password = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+        prefix, suffix = sha1_password[:5], sha1_password[5:]
+        response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}", timeout=5)
+        response.raise_for_status()  # Lança exceção para códigos de erro HTTP
+        # A resposta é uma lista de sufixos de hash e suas contagens
+        # Ex: 0018A45C4D1DEF81644B54AB7F969B88D65:1
+        return any(line.startswith(suffix) for line in response.text.splitlines())
+    except requests.RequestException:
+        # Em caso de erro de rede ou timeout, consideramos a senha como segura
+        # para não impedir o usuário de usar a senha.
+        return False
