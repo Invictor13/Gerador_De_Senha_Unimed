@@ -45,6 +45,45 @@ class SettingsManager:
         except IOError as e:
             print(f"Erro ao salvar configurações: {e}")
 
+
+class PasswordValidator:
+    """Valida a força de uma senha com base em um conjunto de regras."""
+    COMMON_NAMES = ['joao', 'maria', 'ana', 'pedro', 'paulo', 'unimed']
+
+    def _has_minimum_length(self, password: str) -> bool:
+        """Verifica se a senha tem o comprimento mínimo de 10 caracteres."""
+        return len(password) >= 10
+
+    def _has_upper_and_lower_case(self, password: str) -> bool:
+        """Verifica se a senha contém caracteres maiúsculos e minúsculos."""
+        return any(c.isupper() for c in password) and any(c.islower() for c in password)
+
+    def _has_number(self, password: str) -> bool:
+        """Verifica se a senha contém pelo menos um número."""
+        return any(c.isdigit() for c in password)
+
+    def _has_symbol(self, password: str) -> bool:
+        """Verifica se a senha contém pelo menos um caractere de pontuação."""
+        return any(c in string.punctuation for c in password)
+
+    def _has_no_common_names(self, password: str) -> bool:
+        """Verifica se a senha não contém nomes próprios comuns."""
+        password_lower = password.lower()
+        return not any(name in password_lower for name in self.COMMON_NAMES)
+
+    def analyze(self, password: str) -> dict:
+        """
+        Analisa a senha e retorna um dicionário com os resultados da validação.
+        """
+        return {
+            'length_ok': self._has_minimum_length(password),
+            'case_ok': self._has_upper_and_lower_case(password),
+            'has_number': self._has_number(password),
+            'has_symbol': self._has_symbol(password),
+            'no_common_names': self._has_no_common_names(password),
+        }
+
+
 class PasswordGenerator:
     """Gera e analisa senhas e frases-senha."""
     CARACTERES_AMBIGUOS = "Il1O0o"
