@@ -29,6 +29,12 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
+        # --- Cálculo de Dimensões Proporcionais ---
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        self.frame_width = screen_width * 0.5
+        self.frame_height = screen_height * 0.6
+
         # --- Inicialização de Módulos ---
         self.settings_manager = SettingsManager()
         self.password_generator = PasswordGenerator()
@@ -42,7 +48,9 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.title("Gerador de Senhas e Frases - UNIMED (Refatorado)")
 
         # --- Configuração da Janela ---
-        self.state('zoomed') # Inicia em tela cheia
+        self.attributes('-fullscreen', True) # Inicia em tela cheia absoluta
+        self.bind("<Escape>", self.exit_fullscreen)
+
         self.minsize(700, 650)   # Tamanho mínimo para evitar quebra de layout
         self.resizable(True, True) # Permite redimensionamento
 
@@ -82,15 +90,17 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.animation_canvas = customtkinter.CTkCanvas(self, highlightthickness=0)
         self.animation_canvas.place(relwidth=1, relheight=1)
 
-        # Container para centralizar o conteúdo principal
-        center_container = customtkinter.CTkFrame(self, fg_color="transparent")
-        center_container.place(relx=0.5, rely=0.5, anchor="center")
+        # --- Configuração do Grid Central ---
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-        main_labelframe = customtkinter.CTkFrame(center_container, corner_radius=10, width=600)
-        main_labelframe.pack()
+        # --- Frame Principal com Tamanho Fixo e Proporcional ---
+        main_labelframe = customtkinter.CTkFrame(self, corner_radius=10, width=self.frame_width, height=self.frame_height)
+        main_labelframe.grid(row=0, column=0)
 
+        # O frame interno agora controla o padding e o conteúdo, mas não o tamanho total
         content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
-        content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10) # Padding para não colar nas bordas
+        content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10, expand=True, fill="both")
 
         header_font_config = CONFIG["FONTES"]["CABECALHO"]
         self.header_label = customtkinter.CTkLabel(content_frame, text="Gerador de Senhas", font=customtkinter.CTkFont(family=header_font_config[0], size=header_font_config[1], weight=header_font_config[2]))
@@ -264,3 +274,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def handle_focus_out(self, event):
         """Pausa a animação quando a janela perde foco para economizar CPU."""
         self.animator.stop()
+
+    def exit_fullscreen(self, event=None):
+        """Sai do modo de tela cheia."""
+        self.attributes('-fullscreen', False)
