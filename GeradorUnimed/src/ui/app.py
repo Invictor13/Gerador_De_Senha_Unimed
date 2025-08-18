@@ -88,7 +88,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
         content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10) # Padding para não colar nas bordas
 
-        self.header_label = customtkinter.CTkLabel(content_frame, text="Gerador de Senhas", font=customtkinter.CTkFont(size=CONFIG["FONTES"]["TAMANHO_CABECALHO"], weight="bold"))
+        header_font_config = CONFIG["FONTES"]["CABECALHO"]
+        self.header_label = customtkinter.CTkLabel(content_frame, text="Gerador de Senhas", font=customtkinter.CTkFont(family=header_font_config[0], size=header_font_config[1], weight=header_font_config[2]))
         self.header_label.pack(pady=(0, 10))
 
         self.animator = UnimedWordAnimator(self.animation_canvas, self.header_label)
