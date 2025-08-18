@@ -9,6 +9,7 @@ como as abas de geração de senha e frase-senha.
 import tkinter as tk
 import customtkinter
 from tkinter import scrolledtext
+import os
 
 from src.config import CONFIG
 from src.ui.utils import Tooltip
@@ -98,9 +99,37 @@ class PassphraseTab(customtkinter.CTkFrame):
     def __init__(self, parent, app_controller):
         super().__init__(parent, fg_color="transparent")
         self.app = app_controller
+        self.wordlists = {} # Mapeia nome amigável para caminho do arquivo
         self.pack(fill="both", expand=True)
+
+        self._load_wordlist_options()
         self.create_widgets()
-        self.on_wordlist_select() # Initialize text area
+        self.on_wordlist_select() # Garante estado inicial correto
+
+    def _load_wordlist_options(self):
+        """Carrega as opções de wordlist do diretório de assets."""
+        self.wordlists.clear()
+        # Mapeamento de nome de arquivo para nome de exibição amigável
+        friendly_names = {
+            "portugues_basico.txt": "Português (Básico)",
+            "ingles_basico.txt": "Inglês (Básico)",
+            "animais_pt_br.txt": "Animais (PT-BR)"
+        }
+        try:
+            script_dir = os.path.dirname(__file__)
+            wordlists_path = os.path.abspath(os.path.join(script_dir, '..', 'assets', 'wordlists'))
+
+            if os.path.exists(wordlists_path):
+                for filename in os.listdir(wordlists_path):
+                    if filename.endswith(".txt"):
+                        display_name = friendly_names.get(filename, filename)
+                        self.wordlists[display_name] = os.path.join(wordlists_path, filename)
+        except Exception as e:
+            # Em caso de erro, não quebra a aplicação
+            print(f"Erro ao carregar as wordlists: {e}")
+
+        self.wordlists["Personalizado..."] = None # Adiciona a opção personalizada
+
 
     def create_widgets(self):
         # --- Frame de Resultado ---
@@ -125,7 +154,7 @@ class PassphraseTab(customtkinter.CTkFrame):
         selecao_lista_frame = customtkinter.CTkFrame(opcoes_frame, fg_color="transparent")
         selecao_lista_frame.pack(fill="x", pady=5, padx=10)
         customtkinter.CTkLabel(selecao_lista_frame, text="Fonte das Palavras:").pack(side="left")
-        self.wordlist_combo = customtkinter.CTkComboBox(selecao_lista_frame, variable=self.app.vars['lista_palavras_selecionada_var'], values=list(CONFIG["WORDLISTS"].keys()), state="readonly", command=self.on_wordlist_select)
+        self.wordlist_combo = customtkinter.CTkComboBox(selecao_lista_frame, variable=self.app.vars['lista_palavras_selecionada_var'], values=list(self.wordlists.keys()), state="readonly", command=self.on_wordlist_select)
         self.wordlist_combo.pack(side="right", fill="x", expand=True, padx=(10,0))
 
         # --- Linha 2: Número de Palavras e Separador ---
@@ -155,10 +184,21 @@ class PassphraseTab(customtkinter.CTkFrame):
         )
 
     def on_wordlist_select(self, event=None):
+        """Lida com a seleção de uma nova wordlist, carregando-a do arquivo."""
         selection = self.app.vars['lista_palavras_selecionada_var'].get()
+        filepath = self.wordlists.get(selection)
+
         self.wordlist_text.config(state="normal")
         self.wordlist_text.delete("1.0", tk.END)
-        word_string = CONFIG["WORDLISTS"].get(selection, "")
+
+        word_string = ""
+        if filepath:
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    word_string = f.read()
+            except Exception as e:
+                word_string = f"Erro ao ler o arquivo:\n{e}"
+
         self.wordlist_text.insert("1.0", word_string.replace(" ", "\n"))
 
         if selection != "Personalizado...":

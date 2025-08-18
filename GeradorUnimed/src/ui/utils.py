@@ -132,11 +132,8 @@ class UnimedWordAnimator:
             self.animate()
 
     def stop(self):
+        """Pausa a animação para economizar recursos."""
         self.is_running = False
-        for word in self.words:
-            for symbol_id in word.symbols:
-                self.canvas.delete(symbol_id)
-        self.words.clear()
 
     def animate(self):
         if not self.is_running: return

@@ -55,6 +55,10 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             # A animação precisa de um pequeno delay para obter o tamanho correto do canvas
             self.after(100, self.animator.start)
 
+        # --- Eventos de Foco para Otimização ---
+        self.bind("<FocusIn>", self.handle_focus_in)
+        self.bind("<FocusOut>", self.handle_focus_out)
+
     def _init_vars(self):
         """Inicializa as variáveis do Tkinter com os valores das configurações."""
         self.vars = {
@@ -246,3 +250,12 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         }
         self.settings_manager.save_settings(current_settings)
         self.destroy()
+
+    def handle_focus_in(self, event):
+        """Reinicia a animação quando a janela ganha foco."""
+        if self.vars["animacao_ativa"].get():
+            self.animator.start()
+
+    def handle_focus_out(self, event):
+        """Pausa a animação quando a janela perde foco para economizar CPU."""
+        self.animator.stop()
