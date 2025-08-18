@@ -109,6 +109,15 @@ class AnimatedWord:
                     self.canvas.itemconfig(symbol_id, text=self.word[i], fill=CONFIG["CORES"]["VERDE_ANIMACAO_FINAL"])
 
         elif self.state == "visible":
+            # Alterna a cor da palavra entre verde e preto a cada 5 ciclos
+            if self.cycle_counter % 10 < 5:
+                new_color = CONFIG["CORES"]["VERDE_ANIMACAO_FINAL"]
+            else:
+                new_color = "black"
+
+            for symbol_id in self.symbols:
+                self.canvas.itemconfig(symbol_id, fill=new_color)
+
             # Permanece visível por um tempo, depois some (tempo reduzido)
             if self.cycle_counter > random.randint(20, 40):
                 self.hide()
