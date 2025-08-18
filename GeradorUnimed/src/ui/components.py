@@ -59,7 +59,8 @@ class AdvancedPasswordOptionsWindow(customtkinter.CTkToplevel):
         cb_ambiguos.pack(anchor="w", pady=(10,5), padx=10)
 
         # --- Botão de Fechar ---
-        close_button = customtkinter.CTkButton(main_frame, text="Fechar", command=self.destroy)
+        unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
+        close_button = customtkinter.CTkButton(main_frame, text="Fechar", command=self.destroy, fg_color=unimed_color, hover_color=unimed_color)
         close_button.pack(pady=(10,0), side="bottom")
 
 
@@ -73,47 +74,91 @@ class PasswordTab(customtkinter.CTkFrame):
         self.create_widgets()
 
     def create_widgets(self):
-        # --- Frame de Resultado ---
-        resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        resultado_frame.pack(fill="x", pady=5)
+        # Configuração do grid principal da aba
+        self.grid_columnconfigure(0, weight=1)
+        # self.grid_rowconfigure(0, weight=1) # Senha
+        # self.grid_rowconfigure(1, weight=0) # Status
+        # self.grid_rowconfigure(2, weight=0) # Barra de Entropia
+        # self.grid_rowconfigure(3, weight=1) # Painel de Ações
 
-        senha_font_config = CONFIG["FONTES"]["SENHA"]
-        self.senha_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["senha_gerada"], font=customtkinter.CTkFont(family=senha_font_config[0], size=senha_font_config[1], weight=senha_font_config[2]), justify="center")
-        self.senha_entry.pack(side="left", fill="x", expand=True, ipady=5)
+        # --- 1. Senha em Destaque ---
+        senha_font_config = ("Consolas", 24, "bold")
+        self.senha_entry = customtkinter.CTkEntry(
+            self,
+            textvariable=self.app.vars["senha_gerada"],
+            font=senha_font_config,
+            justify="center"
+        )
+        self.senha_entry.grid(row=0, column=0, sticky="ew", padx=10, pady=20, ipady=10)
 
-        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn), cursor="hand2")
-        self.copiar_btn.pack(side="right", padx=(5, 0))
-
-        # --- Banner de Status de Segurança ---
+        # --- 2. Banner de Status ---
         self.status_frame = customtkinter.CTkFrame(self, fg_color="transparent", corner_radius=6)
-        self.status_frame.pack(fill="x", pady=(10, 0), ipady=5)
+        self.status_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=(0, 10))
         self.status_label = customtkinter.CTkLabel(self.status_frame, text="Status da Senha", font=customtkinter.CTkFont(weight="bold", size=14))
         self.status_label.pack(expand=True, fill="both")
 
+        # --- Barra de Entropia ---
+        self.entropy_bar = customtkinter.CTkProgressBar(self, height=15, corner_radius=8)
+        self.entropy_bar.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
+        self.entropy_bar.set(0)
 
-        # --- Frame de Informações (Histórico e Entropia) ---
+        # --- Frame de Informações (Histórico e Entropia Label) ---
         info_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        info_frame.pack(fill="x", pady=5, expand=True)
+        info_frame.grid(row=3, column=0, sticky="ew", padx=10)
+        info_frame.grid_columnconfigure(0, weight=1)
+        info_frame.grid_columnconfigure(1, weight=1)
 
         self.history_menu = customtkinter.CTkComboBox(info_frame, values=[], state="readonly", width=120, command=self.app.on_history_select)
         self.history_menu.set("Histórico")
-        self.history_menu.pack(side="left")
+        self.history_menu.grid(row=0, column=0, sticky="w")
 
         self.entropy_label = customtkinter.CTkLabel(info_frame, text="Entropia: 0.00 bits", anchor="e")
-        self.entropy_label.pack(side="right", padx=(10, 0))
+        self.entropy_label.grid(row=0, column=1, sticky="e")
 
-        # --- Barra de Entropia ---
-        self.entropy_bar = customtkinter.CTkProgressBar(self, height=15, corner_radius=8)
-        self.entropy_bar.pack(fill="x", pady=(5, 10), expand=True)
-        self.entropy_bar.set(0) # Valor inicial
 
-        # --- Botão de Opções Avançadas ---
-        advanced_options_btn = customtkinter.CTkButton(self, text="Opções Avançadas", command=self.open_advanced_options)
-        advanced_options_btn.pack(fill="x", pady=10)
+        # --- 3. Painel de Ação Unificado ---
+        action_panel = customtkinter.CTkFrame(self, fg_color="transparent")
+        action_panel.grid(row=4, column=0, sticky="ew", pady=(10, 0))
+        action_panel.grid_columnconfigure((0, 1, 2), weight=1) # Três colunas de larguras iguais
 
-        # --- Botão de Gerar ---
-        self.gerar_senha_btn = customtkinter.CTkButton(self, text="GERAR NOVA SENHA", command=self.generate_password, cursor="hand2", height=40, font=customtkinter.CTkFont(weight="bold"))
-        self.gerar_senha_btn.pack(fill="x", ipady=5, pady=(10,0))
+        unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
+        hover_color = CONFIG["CORES"]["VERDE_HOVER"]
+
+        # Botão Gerar
+        self.gerar_senha_btn = customtkinter.CTkButton(
+            action_panel,
+            text="GERAR NOVA SENHA",
+            command=self.generate_password,
+            cursor="hand2",
+            height=40,
+            font=customtkinter.CTkFont(weight="bold"),
+            fg_color=unimed_color,
+            hover_color=hover_color
+        )
+        self.gerar_senha_btn.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+
+        # Botão Copiar
+        self.copiar_btn = customtkinter.CTkButton(
+            action_panel,
+            text="Copiar",
+            command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn),
+            cursor="hand2",
+            height=40,
+            fg_color=unimed_color,
+            hover_color=hover_color
+        )
+        self.copiar_btn.grid(row=0, column=1, sticky="ew", padx=5)
+
+        # Botão Opções Avançadas
+        advanced_options_btn = customtkinter.CTkButton(
+            action_panel,
+            text="Opções Avançadas",
+            command=self.open_advanced_options,
+            height=40,
+            fg_color=unimed_color,
+            hover_color=hover_color
+        )
+        advanced_options_btn.grid(row=0, column=2, sticky="ew", padx=(5, 0))
 
     def open_advanced_options(self):
         """Abre a janela de opções avançadas."""
@@ -175,7 +220,8 @@ class PassphraseTab(customtkinter.CTkFrame):
         self.frase_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["frase_gerada"], font=customtkinter.CTkFont(family=frase_font_config[0], size=frase_font_config[1], weight=frase_font_config[2]), justify="center")
         self.frase_entry.pack(side="left", fill="x", expand=True, ipady=5)
 
-        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["frase_gerada"].get(), self.copiar_btn), cursor="hand2")
+        unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
+        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["frase_gerada"].get(), self.copiar_btn), cursor="hand2", fg_color=unimed_color, hover_color=unimed_color)
         self.copiar_btn.pack(side="right", padx=(10, 0))
 
         self.entropy_label = customtkinter.CTkLabel(self, text="Entropia: 0 bits", anchor="center")
@@ -207,7 +253,8 @@ class PassphraseTab(customtkinter.CTkFrame):
         self.wordlist_text.pack(fill="both", expand=True, pady=(5,0), padx=10)
 
         # --- Botão de Gerar ---
-        self.gerar_frase_btn = customtkinter.CTkButton(self, text="GERAR NOVA FRASE", command=self.generate_passphrase, cursor="hand2", height=40, font=customtkinter.CTkFont(weight="bold"))
+        unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
+        self.gerar_frase_btn = customtkinter.CTkButton(self, text="GERAR NOVA FRASE", command=self.generate_passphrase, cursor="hand2", height=40, font=customtkinter.CTkFont(weight="bold"), fg_color=unimed_color, hover_color=unimed_color)
         self.gerar_frase_btn.pack(fill="x", ipady=5, pady=(10,0))
 
     def generate_passphrase(self):

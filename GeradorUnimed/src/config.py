@@ -10,6 +10,7 @@ como cores, fontes e configurações padrão, para fácil manutenção.
 # Agrupar constantes melhora a manutenção e a clareza do código.
 CONFIG = {
     "CORES": {
+        "VERDE_UNIMED": "#00995c",
         "FUNDO": "#0D0208", # Fundo quase preto para a animação
         "FRAME_PRINCIPAL": "#FFFFFF",
         "VERDE_PRIMARIO": "#00995c",

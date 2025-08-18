@@ -48,7 +48,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.title("Gerador de Senhas e Frases - UNIMED (Refatorado)")
 
         # --- Configuração da Janela ---
-        self.attributes('-fullscreen', True) # Inicia em tela cheia absoluta
+        self.wm_state('zoomed') # Inicia maximizado
         self.bind("<Escape>", self.exit_fullscreen)
 
         self.minsize(700, 650)   # Tamanho mínimo para evitar quebra de layout
@@ -101,10 +101,14 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         # O frame interno agora controla o padding e o conteúdo, mas não o tamanho total
         content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
         content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10, expand=True, fill="both")
+        content_frame.grid_propagate(False) # Impede que os filhos alterem o tamanho do frame
+        content_frame.grid_rowconfigure(2, weight=1) # Permite que o notebook expanda
+        content_frame.grid_columnconfigure(0, weight=1)
+
 
         header_font_config = CONFIG["FONTES"]["CABECALHO"]
         self.header_label = customtkinter.CTkLabel(content_frame, text="Gerador de Senhas", font=customtkinter.CTkFont(family=header_font_config[0], size=header_font_config[1], weight=header_font_config[2]))
-        self.header_label.pack(pady=(0, 10))
+        self.header_label.grid(row=0, column=0, pady=(0, 10))
 
         self.animator = UnimedWordAnimator(self.animation_canvas, self.header_label)
 
@@ -115,26 +119,32 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             img_aberta = Image.open(logo_path)
             self.logo_image = customtkinter.CTkImage(light_image=img_aberta, dark_image=img_aberta, size=(100, int(100 * img_aberta.size[1] / img_aberta.size[0])))
             logo_widget = customtkinter.CTkLabel(content_frame, image=self.logo_image, text="")
-            logo_widget.pack(pady=(0, 20))
+            logo_widget.grid(row=1, column=0, pady=(0, 20))
         except Exception:
             logo_widget = customtkinter.CTkLabel(content_frame, text="UNIMED", font=customtkinter.CTkFont(size=24, weight="bold"))
-            logo_widget.pack(pady=10)
+            logo_widget.grid(row=1, column=0, pady=10)
 
+        # --- Abas ---
         notebook = customtkinter.CTkTabview(content_frame)
-        notebook.pack(expand=True, fill="both", pady=(0, 15))
+        notebook.grid(row=2, column=0, sticky="nsew", pady=(0, 15))
 
-        notebook.add("SENHA")
-        notebook.add("FRASE-SENHA")
+        senha_tab = notebook.add("SENHA")
+        frase_tab = notebook.add("FRASE-SENHA")
 
-        self.tab_senha = PasswordTab(notebook.tab("SENHA"), self)
-        self.tab_frase = PassphraseTab(notebook.tab("FRASE-SENHA"), self)
+        # Força as abas a terem a mesma altura mínima
+        # A altura é um valor empírico para acomodar a aba de Frase-Senha que é maior
+        senha_tab.configure(height=350)
+        frase_tab.configure(height=350)
+
+        self.tab_senha = PasswordTab(senha_tab, self)
+        self.tab_frase = PassphraseTab(frase_tab, self)
 
         self.create_common_widgets(content_frame)
 
     def create_common_widgets(self, parent_frame):
         """Cria widgets comuns a toda a aplicação."""
         settings_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
-        settings_frame.pack(side="bottom", fill="x", pady=(10, 0))
+        settings_frame.grid(row=3, column=0, sticky="ew", pady=(10, 0))
 
         cb_animacao = customtkinter.CTkCheckBox(settings_frame, text="Ativar animação de fundo", variable=self.vars["animacao_ativa"], command=self.toggle_animation)
         cb_animacao.pack(anchor="w")
