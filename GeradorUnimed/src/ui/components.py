@@ -29,7 +29,8 @@ class PasswordTab(customtkinter.CTkFrame):
         resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
         resultado_frame.pack(fill="x", pady=5)
 
-        self.senha_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["senha_gerada"], font=customtkinter.CTkFont(size=CONFIG["FONTES"]["TAMANHO_SENHA"]), justify="center")
+        senha_font_config = CONFIG["FONTES"]["SENHA"]
+        self.senha_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["senha_gerada"], font=customtkinter.CTkFont(family=senha_font_config[0], size=senha_font_config[1], weight=senha_font_config[2]), justify="center")
         self.senha_entry.pack(side="left", fill="x", expand=True, ipady=5)
 
         self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn), cursor="hand2")
@@ -101,7 +102,8 @@ class PassphraseTab(customtkinter.CTkFrame):
         resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
         resultado_frame.pack(fill="x", pady=5)
 
-        self.frase_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["frase_gerada"], font=customtkinter.CTkFont(size=CONFIG["FONTES"]["TAMANHO_SENHA"]), justify="center")
+        frase_font_config = CONFIG["FONTES"]["SENHA"]
+        self.frase_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["frase_gerada"], font=customtkinter.CTkFont(family=frase_font_config[0], size=frase_font_config[1], weight=frase_font_config[2]), justify="center")
         self.frase_entry.pack(side="left", fill="x", expand=True, ipady=5)
 
         self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["frase_gerada"].get(), self.copiar_btn), cursor="hand2")
@@ -132,7 +134,7 @@ class PassphraseTab(customtkinter.CTkFrame):
         customtkinter.CTkEntry(config_line_frame, textvariable=self.app.vars['separador_var'], width=70).pack(side="left", padx=(5,0))
 
         # --- Área de Texto para Lista de Palavras ---
-        self.wordlist_text = scrolledtext.ScrolledText(opcoes_frame, height=8, wrap=tk.WORD, font=(CONFIG["FONTES"]["FAMILIA"], CONFIG["FONTES"]["TAMANHO_PADRAO"]), relief="solid", borderwidth=1)
+        self.wordlist_text = scrolledtext.ScrolledText(opcoes_frame, height=8, wrap=tk.WORD, font=CONFIG["FONTES"]["PRINCIPAL"], relief="solid", borderwidth=1)
         self.wordlist_text.pack(fill="both", expand=True, pady=(5,0), padx=10)
 
         # --- Botão de Gerar ---
