@@ -47,7 +47,7 @@ class AnimatedWord:
         self.canvas = canvas
         self.word = "UNIMED"
         self.chars = "日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01"
-        self.font = (CONFIG["FONTES"]["FAMILIA"], CONFIG["FONTES"]["TAMANHO_ANIMACAO"])
+        self.font = CONFIG["FONTES"]["ANIMACAO"]
         self.font_size = self.font[1]
         self.symbols = []
         self.state = "hidden"  # States: hidden, scrambling, visible
