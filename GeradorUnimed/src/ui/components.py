@@ -34,7 +34,12 @@ class PasswordTab(customtkinter.CTkFrame):
         self.senha_entry.pack(side="left", fill="x", expand=True, ipady=5)
 
         self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn), cursor="hand2")
-        self.copiar_btn.pack(side="right", padx=(10, 0))
+        self.copiar_btn.pack(side="right", padx=(5, 0))
+
+        # Selo de Segurança
+        self.security_seal = customtkinter.CTkLabel(resultado_frame, text="🛡️", font=customtkinter.CTkFont(size=24), text_color="grey")
+        self.security_seal.pack(side="right", padx=(10, 5))
+        Tooltip(self.security_seal, "Verificação de vazamentos de dados.\nVerde: Seguro\nVermelho: Vazado\nCinza: Não verificado")
 
         # --- Frame de Informações (Histórico e Entropia) ---
         info_frame = customtkinter.CTkFrame(self, fg_color="transparent")
