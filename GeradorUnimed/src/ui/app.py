@@ -49,8 +49,9 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.title("Gerador de Senhas e Frases - UNIMED (Refatorado)")
 
         # --- Configuração da Janela ---
-        self.geometry("1024x768")
-        self.wm_state('zoomed') # Inicia maximizado
+        largura_tela = self.winfo_screenwidth()
+        altura_tela = self.winfo_screenheight()
+        self.geometry(f"{largura_tela}x{altura_tela}+0+0")
         self.bind("<Escape>", self.exit_fullscreen)
 
         self.minsize(700, 650)   # Tamanho mínimo para evitar quebra de layout
@@ -141,12 +142,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
     def create_common_widgets(self, parent_frame):
         """Cria widgets comuns a toda a aplicação."""
-        settings_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
-        settings_frame.grid(row=3, column=0, sticky="ew", pady=(10, 0))
-
-        cb_animacao = customtkinter.CTkCheckBox(settings_frame, text="Ativar animação de fundo", variable=self.vars["animacao_ativa"], command=self.toggle_animation)
-        cb_animacao.pack(anchor="w")
-        # Tooltip(cb_animacao, "Pode consumir mais CPU.") # Tooltip needs to be adapted for CTk
+        # O frame de configurações foi removido daqui para um local mais apropriado.
+        pass
 
     def animate_generation(self, button, target_var, length, final_callback):
         """Anima o campo de texto antes de mostrar o resultado final."""
