@@ -17,7 +17,8 @@ import pyperclip
 from PIL import Image
 
 from src.config import CONFIG
-from src.logic import PasswordGenerator, SettingsManager, check_pwned
+from src.logic import PasswordGenerator, SettingsManager, check_pwned, PasswordValidator
+from src.ui.analyzer_tab import AnalyzerTab
 from src.ui.components import PassphraseTab, PasswordTab
 from src.ui.utils import Tooltip, UnimedWordAnimator
 
@@ -130,9 +131,11 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         senha_tab = notebook.add("SENHA")
         frase_tab = notebook.add("FRASE-SENHA")
+        analyzer_tab = notebook.add("ANALISADOR")
 
         self.tab_senha = PasswordTab(senha_tab, self)
         self.tab_frase = PassphraseTab(frase_tab, self)
+        self.tab_analyzer = AnalyzerTab(analyzer_tab)
 
         self.create_common_widgets(content_frame)
 
