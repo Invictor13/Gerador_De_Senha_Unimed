@@ -11,10 +11,10 @@ import os
 import secrets
 import string
 import tkinter as tk
-from tkinter import ttk
+import customtkinter
 
 import pyperclip
-from PIL import Image, ImageTk
+from PIL import Image
 
 from src.config import CONFIG
 from src.logic import PasswordGenerator, SettingsManager
@@ -24,7 +24,7 @@ from src.ui.utils import Tooltip, UnimedWordAnimator
 # 6. CLASSE PRINCIPAL DA APLICAÇÃO
 # Orquestra todos os componentes.
 
-class UnimedPasswordGeneratorApp(tk.Tk):
+class UnimedPasswordGeneratorApp(customtkinter.CTk):
     """Classe principal que constrói e gerencia a aplicação."""
     def __init__(self):
         super().__init__()
@@ -35,6 +35,10 @@ class UnimedPasswordGeneratorApp(tk.Tk):
         self.settings = self.settings_manager.load_settings()
         self.password_history = []
 
+        # --- Configuração do Tema ---
+        customtkinter.set_appearance_mode("dark")
+        customtkinter.set_default_color_theme("blue")
+
         self.title("Gerador de Senhas e Frases - UNIMED (Refatorado)")
 
         # --- Configuração da Janela ---
@@ -42,11 +46,9 @@ class UnimedPasswordGeneratorApp(tk.Tk):
         self.minsize(700, 650)   # Tamanho mínimo para evitar quebra de layout
         self.resizable(True, True) # Permite redimensionamento
 
-        self.configure(bg=CONFIG["CORES"]["FUNDO"])
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self._init_vars()
-        self._configure_styles()
         self.create_main_widgets()
 
         if self.vars["animacao_ativa"].get():
@@ -71,52 +73,22 @@ class UnimedPasswordGeneratorApp(tk.Tk):
             "lista_palavras_selecionada_var": tk.StringVar(value=self.settings["lista_palavras_selecionada"])
         }
 
-    def _configure_styles(self):
-        """Configura a aparência de todos os widgets ttk."""
-        style = ttk.Style(self)
-        style.theme_use('clam')
-
-        # Cores
-        C = CONFIG["CORES"]
-        F = CONFIG["FONTES"]
-
-        style.configure(".", background=C["FRAME_PRINCIPAL"], foreground=C["TEXTO_PRINCIPAL"], font=F["PRINCIPAL"])
-        style.configure("TFrame", background=C["FRAME_PRINCIPAL"])
-        style.configure("TLabel", background=C["FRAME_PRINCIPAL"], foreground=C["TEXTO_PRINCIPAL"])
-        style.configure("TCheckbutton", background=C["FRAME_PRINCIPAL"], foreground=C["TEXTO_PRINCIPAL"])
-        style.map("TCheckbutton", background=[('active', C["FRAME_PRINCIPAL"])])
-        style.configure("TLabelframe", background=C["FRAME_PRINCIPAL"], bordercolor="#CCCCCC")
-        style.configure("TLabelframe.Label", background=C["FRAME_PRINCIPAL"], foreground=C["TEXTO_PRINCIPAL"], font=F["LABEL_FRAME"])
-        style.configure("TEntry", fieldbackground=C["CAMPO_FUNDO"], foreground=C["TEXTO_CAMPO"], borderwidth=1, relief="solid")
-        style.configure("TSpinbox", fieldbackground=C["CAMPO_FUNDO"], foreground=C["TEXTO_CAMPO"], arrowcolor=C["TEXTO_PRINCIPAL"], borderwidth=1, relief="solid")
-        style.map("TSpinbox", background=[('active', C["FRAME_PRINCIPAL"]), ('!active', C["FRAME_PRINCIPAL"])])
-        style.configure("TCombobox", fieldbackground=C["CAMPO_FUNDO"], foreground=C["TEXTO_CAMPO"], arrowcolor=C["TEXTO_PRINCIPAL"], borderwidth=0)
-        style.configure("TNotebook", background=C["FRAME_PRINCIPAL"], borderwidth=0)
-        style.configure("TNotebook.Tab", background="#E0E0E0", foreground=C["TEXTO_PRINCIPAL"], font=("Segoe UI", 9, "bold"), padding=[10, 5], borderwidth=0)
-        style.map("TNotebook.Tab", background=[("selected", C["VERDE_PRIMARIO"])], foreground=[("selected", C["BOTAO_TEXTO"])])
-        style.configure("TButton", background=C["VERDE_PRIMARIO"], foreground=C["BOTAO_TEXTO"], font=F["BOTAO"], padding=(8, 4), borderwidth=0)
-        style.map("TButton", background=[('active', C["VERDE_HOVER"]), ('hover', C["VERDE_HOVER"])])
-        style.configure("Gerar.TButton", font=F["BOTAO"], padding=(20, 10))
-
     def create_main_widgets(self):
         """Cria a estrutura principal da UI."""
-        self.animation_canvas = tk.Canvas(self, bg=CONFIG["CORES"]["FUNDO"], highlightthickness=0)
+        self.animation_canvas = customtkinter.CTkCanvas(self, highlightthickness=0)
         self.animation_canvas.place(relwidth=1, relheight=1)
 
         # Container para centralizar o conteúdo principal
-        center_container = ttk.Frame(self, style="TFrame")
-        center_container.configure(style="Blank.TFrame") # Estilo para ser transparente
-        style = ttk.Style(self)
-        style.configure("Blank.TFrame", background=CONFIG["CORES"]["FUNDO"])
+        center_container = customtkinter.CTkFrame(self, fg_color="transparent")
         center_container.place(relx=0.5, rely=0.5, anchor="center")
 
-        main_labelframe = ttk.LabelFrame(center_container, text=" Gerador de Senhas e Frases UNIMED ", style="Content.TLabelframe")
+        main_labelframe = customtkinter.CTkFrame(center_container, corner_radius=10)
         main_labelframe.pack()
 
-        content_frame = ttk.Frame(main_labelframe, padding=(30, 15))
-        content_frame.pack(padx=10, pady=5) # Padding para não colar nas bordas
+        content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
+        content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10) # Padding para não colar nas bordas
 
-        self.header_label = tk.Label(content_frame, text="Gerador de Senhas", font=CONFIG["FONTES"]["CABECALHO"], bg=CONFIG["CORES"]["FRAME_PRINCIPAL"], fg=CONFIG["CORES"]["TEXTO_PRINCIPAL"])
+        self.header_label = customtkinter.CTkLabel(content_frame, text="Gerador de Senhas", font=customtkinter.CTkFont(size=CONFIG["FONTES"]["TAMANHO_CABECALHO"], weight="bold"))
         self.header_label.pack(pady=(0, 10))
 
         self.animator = UnimedWordAnimator(self.animation_canvas, self.header_label)
@@ -126,37 +98,36 @@ class UnimedPasswordGeneratorApp(tk.Tk):
             script_dir = os.path.dirname(__file__)
             logo_path = os.path.abspath(os.path.join(script_dir, '..', '..', 'assets', 'logo.png'))
             img_aberta = Image.open(logo_path)
-            img_redimensionada = img_aberta.resize((100, int(100 * img_aberta.size[1] / img_aberta.size[0])))
-            self.logo_image = ImageTk.PhotoImage(img_redimensionada)
-            logo_widget = tk.Label(content_frame, image=self.logo_image, bg=CONFIG["CORES"]["FRAME_PRINCIPAL"])
+            self.logo_image = customtkinter.CTkImage(light_image=img_aberta, dark_image=img_aberta, size=(100, int(100 * img_aberta.size[1] / img_aberta.size[0])))
+            logo_widget = customtkinter.CTkLabel(content_frame, image=self.logo_image, text="")
             logo_widget.pack(pady=(0, 20))
         except Exception:
-            logo_widget = tk.Label(content_frame, text="UNIMED", font=("Segoe UI", 24, "bold"), bg=CONFIG["CORES"]["FRAME_PRINCIPAL"], fg=CONFIG["CORES"]["VERDE_PRIMARIO"])
+            logo_widget = customtkinter.CTkLabel(content_frame, text="UNIMED", font=customtkinter.CTkFont(size=24, weight="bold"))
             logo_widget.pack(pady=10)
 
-        notebook = ttk.Notebook(content_frame)
+        notebook = customtkinter.CTkTabview(content_frame)
         notebook.pack(expand=True, fill="both", pady=(0, 15))
 
-        self.tab_senha = PasswordTab(notebook, self)
-        self.tab_frase = PassphraseTab(notebook, self)
+        notebook.add("SENHA")
+        notebook.add("FRASE-SENHA")
 
-        notebook.add(self.tab_senha, text="SENHA")
-        notebook.add(self.tab_frase, text="FRASE-SENHA")
+        self.tab_senha = PasswordTab(notebook.tab("SENHA"), self)
+        self.tab_frase = PassphraseTab(notebook.tab("FRASE-SENHA"), self)
 
         self.create_common_widgets(content_frame)
 
     def create_common_widgets(self, parent_frame):
         """Cria widgets comuns a toda a aplicação."""
-        settings_frame = ttk.LabelFrame(parent_frame, text=" Configurações Gerais ", padding=10)
+        settings_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
         settings_frame.pack(side="bottom", fill="x", pady=(10, 0))
 
-        cb_animacao = ttk.Checkbutton(settings_frame, text="Ativar animação de fundo", variable=self.vars["animacao_ativa"], command=self.toggle_animation)
+        cb_animacao = customtkinter.CTkCheckBox(settings_frame, text="Ativar animação de fundo", variable=self.vars["animacao_ativa"], command=self.toggle_animation)
         cb_animacao.pack(anchor="w")
-        Tooltip(cb_animacao, "Pode consumir mais CPU.")
+        # Tooltip(cb_animacao, "Pode consumir mais CPU.") # Tooltip needs to be adapted for CTk
 
     def animate_generation(self, button, target_var, length, final_callback):
         """Anima o campo de texto antes de mostrar o resultado final."""
-        button.config(state="disabled")
+        button.configure(state="disabled")
         char_pool = string.ascii_letters + string.digits + string.punctuation
 
         def animate_step(steps_left):
@@ -170,7 +141,7 @@ class UnimedPasswordGeneratorApp(tk.Tk):
                 self.after(50, lambda: animate_step(steps_left - 1))
             else:
                 final_callback()
-                button.config(state="normal")
+                button.configure(state="normal")
 
         animate_step(10)
 
@@ -183,8 +154,24 @@ class UnimedPasswordGeneratorApp(tk.Tk):
             self.vars["caracteres_especiais_var"].get()
         )
         self.vars["senha_gerada"].set(senha)
-        self.tab_senha.entropy_label.config(text=f"Entropia: {entropia:.2f} bits")
+
+        # --- Lógica da Barra de Entropia ---
+        max_entropy = 128.0
+        normalized_entropy = min(entropia / max_entropy, 1.0)
+
+        self.tab_senha.entropy_bar.set(normalized_entropy)
+
+        if entropia < 40:
+            color = "#FF4141" # Vermelho
+        elif entropia < 80:
+            color = "#FFDB58" # Amarelo
+        else:
+            color = "#00A34D" # Verde
+
+        self.tab_senha.entropy_bar.configure(progress_color=color)
+        self.tab_senha.entropy_label.configure(text=f"Entropia: {entropia:.2f} bits")
         self.update_history(senha)
+
 
     def finalize_passphrase_generation(self):
         """Chama o gerador e atualiza a UI com a nova frase-senha."""
@@ -193,15 +180,15 @@ class UnimedPasswordGeneratorApp(tk.Tk):
             self.vars["num_palavras_var"].get(), self.vars["separador_var"].get(), user_wordlist
         )
         self.vars["frase_gerada"].set(frase)
-        self.tab_frase.entropy_label.config(text=f"Entropia: {entropia:.2f} bits")
+        self.tab_frase.entropy_label.configure(text=f"Entropia: {entropia:.2f} bits")
 
     def copy_to_clipboard(self, text, button):
         """Copia o texto para a área de transferência e dá feedback visual."""
         if text and "Sua" not in text and "Gerando" not in text and "Selecione" not in text:
             pyperclip.copy(text)
             original_text = button.cget("text")
-            button.config(text="Copiado!", state="disabled")
-            self.after(1500, lambda: button.config(text=original_text, state="normal"))
+            button.configure(text="Copiado!", state="disabled")
+            self.after(1500, lambda: button.configure(text=original_text, state="normal"))
 
     def update_history(self, password):
         """Atualiza o histórico de senhas geradas."""
@@ -210,16 +197,29 @@ class UnimedPasswordGeneratorApp(tk.Tk):
             self.password_history.remove(password)
         self.password_history.insert(0, password)
         self.password_history = self.password_history[:10]
-        self.tab_senha.history_menu['values'] = self.password_history
+        self.tab_senha.history_menu.configure(values=self.password_history)
         self.tab_senha.history_menu.set("Histórico")
 
-    def on_history_select(self, event=None):
+    def on_history_select(self, choice):
         """Lida com a seleção de uma senha do histórico."""
-        selected_password = self.tab_senha.history_menu.get()
-        if not selected_password: return
-        self.vars["senha_gerada"].set(selected_password)
-        entropia = self.password_generator.analyze_password(selected_password, self.vars["caracteres_especiais_var"].get())
-        self.tab_senha.entropy_label.config(text=f"Entropia: {entropia:.2f} bits")
+        self.vars["senha_gerada"].set(choice)
+        entropia = self.password_generator.analyze_password(choice, self.vars["caracteres_especiais_var"].get())
+
+        # --- Lógica da Barra de Entropia (Repetida para o Histórico) ---
+        max_entropy = 128.0
+        normalized_entropy = min(entropia / max_entropy, 1.0)
+        self.tab_senha.entropy_bar.set(normalized_entropy)
+
+        if entropia < 40:
+            color = "#FF4141"
+        elif entropia < 80:
+            color = "#FFDB58"
+        else:
+            color = "#00A34D"
+
+        self.tab_senha.entropy_bar.configure(progress_color=color)
+        self.tab_senha.entropy_label.configure(text=f"Entropia: {entropia:.2f} bits")
+
 
     def toggle_animation(self):
         """Ativa ou desativa a animação de fundo."""

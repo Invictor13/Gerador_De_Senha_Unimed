@@ -9,6 +9,7 @@ específicas para a interface, como tooltips e as animações de fundo.
 import math
 import random
 import tkinter as tk
+import customtkinter
 
 from src.config import CONFIG
 
@@ -31,9 +32,8 @@ class Tooltip:
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(self.tooltip_window, text=self.text, justify='left',
-                         background=CONFIG["CORES"]["TOOLTIP_FUNDO"], relief='solid', borderwidth=1,
-                         font=CONFIG["FONTES"]["TOOLTIP"])
+        label = customtkinter.CTkLabel(self.tooltip_window, text=self.text, justify='left',
+                         fg_color=CONFIG["CORES"]["TOOLTIP_FUNDO"], corner_radius=5)
         label.pack(ipadx=1)
 
     def hide_tooltip(self, event):
@@ -47,7 +47,7 @@ class AnimatedWord:
         self.canvas = canvas
         self.word = "UNIMED"
         self.chars = "日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01"
-        self.font = CONFIG["FONTES"]["ANIMACAO"]
+        self.font = (CONFIG["FONTES"]["FAMILIA"], CONFIG["FONTES"]["TAMANHO_ANIMACAO"])
         self.font_size = self.font[1]
         self.symbols = []
         self.state = "hidden"  # States: hidden, scrambling, visible
@@ -145,7 +145,7 @@ class UnimedWordAnimator:
         self.title_animation_step += 0.05
         pulse = (math.sin(self.title_animation_step) + 1) / 2
         new_color = self.fade_color("#FFFFFF", CONFIG["CORES"]["VERDE_PRIMARIO"], pulse)
-        self.header_label.config(fg=new_color)
+        self.header_label.configure(text_color=new_color)
 
         # Anima cada palavra
         for word in self.words:
