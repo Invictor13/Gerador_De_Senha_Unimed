@@ -86,7 +86,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         center_container = customtkinter.CTkFrame(self, fg_color="transparent")
         center_container.place(relx=0.5, rely=0.5, anchor="center")
 
-        main_labelframe = customtkinter.CTkFrame(center_container, corner_radius=10)
+        main_labelframe = customtkinter.CTkFrame(center_container, corner_radius=10, width=600)
         main_labelframe.pack()
 
         content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
@@ -135,7 +135,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         button.configure(state="disabled")
         # Reset security seal before generating a new password
         if "senha" in str(target_var):
-            self.tab_senha.security_seal.configure(text_color="grey")
+            self.tab_senha.status_frame.configure(fg_color="transparent")
+            self.tab_senha.status_label.configure(text="Verificando...")
 
         char_pool = string.ascii_letters + string.digits + string.punctuation
 
@@ -166,8 +167,12 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # --- Verificação de Vazamento ---
         is_pwned = check_pwned(senha)
-        seal_color = "#FF4141" if is_pwned else "#00A34D"
-        self.tab_senha.security_seal.configure(text_color=seal_color)
+        if is_pwned:
+            self.tab_senha.status_frame.configure(fg_color="red")
+            self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
+        else:
+            self.tab_senha.status_frame.configure(fg_color="green")
+            self.tab_senha.status_label.configure(text="SENHA SEGURA")
 
 
         # --- Lógica da Barra de Entropia ---

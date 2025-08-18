@@ -17,49 +17,26 @@ from src.ui.utils import Tooltip
 # 5. CLASSES DE INTERFACE (COMPONENTES DA UI)
 # Cada classe representa uma parte da UI, tornando o código mais limpo.
 
-class PasswordTab(customtkinter.CTkFrame):
-    """Aba para geração de senhas tradicionais."""
+class AdvancedPasswordOptionsWindow(customtkinter.CTkToplevel):
+    """Janela Toplevel para configurações avançadas de senha."""
     def __init__(self, parent, app_controller):
-        super().__init__(parent, fg_color="transparent")
+        super().__init__(parent)
         self.app = app_controller
-        self.pack(fill="both", expand=True)
+
+        self.title("Opções Avançadas")
+        self.geometry("400x450")
+        self.transient(parent)
+        self.grab_set()
+
         self.create_widgets()
 
     def create_widgets(self):
-        # --- Frame de Resultado ---
-        resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        resultado_frame.pack(fill="x", pady=5)
-
-        senha_font_config = CONFIG["FONTES"]["SENHA"]
-        self.senha_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["senha_gerada"], font=customtkinter.CTkFont(family=senha_font_config[0], size=senha_font_config[1], weight=senha_font_config[2]), justify="center")
-        self.senha_entry.pack(side="left", fill="x", expand=True, ipady=5)
-
-        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn), cursor="hand2")
-        self.copiar_btn.pack(side="right", padx=(5, 0))
-
-        # Selo de Segurança
-        self.security_seal = customtkinter.CTkLabel(resultado_frame, text="🛡️", font=customtkinter.CTkFont(size=24), text_color="grey")
-        self.security_seal.pack(side="right", padx=(10, 5))
-        Tooltip(self.security_seal, "Verificação de vazamentos de dados.\nVerde: Seguro\nVermelho: Vazado\nCinza: Não verificado")
-
-        # --- Frame de Informações (Histórico e Entropia) ---
-        info_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        info_frame.pack(fill="x", pady=5, expand=True)
-
-        self.history_menu = customtkinter.CTkComboBox(info_frame, values=[], state="readonly", width=120, command=self.app.on_history_select)
-        self.history_menu.set("Histórico")
-        self.history_menu.pack(side="left")
-
-        self.entropy_label = customtkinter.CTkLabel(info_frame, text="Entropia: 0.00 bits", anchor="e")
-        self.entropy_label.pack(side="right", padx=(10, 0))
-
-        # --- Barra de Entropia ---
-        self.entropy_bar = customtkinter.CTkProgressBar(self, height=15, corner_radius=8)
-        self.entropy_bar.pack(fill="x", pady=(5, 10), expand=True)
-        self.entropy_bar.set(0) # Valor inicial
+        """Cria os widgets de configuração na janela."""
+        main_frame = customtkinter.CTkFrame(self)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         # --- Frame de Opções ---
-        opcoes_frame = customtkinter.CTkFrame(self)
+        opcoes_frame = customtkinter.CTkFrame(main_frame)
         opcoes_frame.pack(fill="x", pady=10, expand=True)
 
         self.comprimento_label = customtkinter.CTkLabel(opcoes_frame, text=f"Comprimento: {self.app.vars['comprimento_var'].get()}")
@@ -80,11 +57,69 @@ class PasswordTab(customtkinter.CTkFrame):
 
         cb_ambiguos = customtkinter.CTkCheckBox(opcoes_frame, text="Excluir Caracteres Ambíguos", variable=self.app.vars['excluir_ambiguos'])
         cb_ambiguos.pack(anchor="w", pady=(10,5), padx=10)
-        # Tooltip(cb_ambiguos, "Exclui: I, l, 1, O, 0, o")
+
+        # --- Botão de Fechar ---
+        close_button = customtkinter.CTkButton(main_frame, text="Fechar", command=self.destroy)
+        close_button.pack(pady=(10,0), side="bottom")
+
+
+class PasswordTab(customtkinter.CTkFrame):
+    """Aba para geração de senhas tradicionais."""
+    def __init__(self, parent, app_controller):
+        super().__init__(parent, fg_color="transparent")
+        self.app = app_controller
+        self.advanced_options_window = None
+        self.pack(fill="both", expand=True)
+        self.create_widgets()
+
+    def create_widgets(self):
+        # --- Frame de Resultado ---
+        resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
+        resultado_frame.pack(fill="x", pady=5)
+
+        senha_font_config = CONFIG["FONTES"]["SENHA"]
+        self.senha_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["senha_gerada"], font=customtkinter.CTkFont(family=senha_font_config[0], size=senha_font_config[1], weight=senha_font_config[2]), justify="center")
+        self.senha_entry.pack(side="left", fill="x", expand=True, ipady=5)
+
+        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn), cursor="hand2")
+        self.copiar_btn.pack(side="right", padx=(5, 0))
+
+        # --- Banner de Status de Segurança ---
+        self.status_frame = customtkinter.CTkFrame(self, fg_color="transparent", corner_radius=6)
+        self.status_frame.pack(fill="x", pady=(10, 0), ipady=5)
+        self.status_label = customtkinter.CTkLabel(self.status_frame, text="Status da Senha", font=customtkinter.CTkFont(weight="bold", size=14))
+        self.status_label.pack(expand=True, fill="both")
+
+
+        # --- Frame de Informações (Histórico e Entropia) ---
+        info_frame = customtkinter.CTkFrame(self, fg_color="transparent")
+        info_frame.pack(fill="x", pady=5, expand=True)
+
+        self.history_menu = customtkinter.CTkComboBox(info_frame, values=[], state="readonly", width=120, command=self.app.on_history_select)
+        self.history_menu.set("Histórico")
+        self.history_menu.pack(side="left")
+
+        self.entropy_label = customtkinter.CTkLabel(info_frame, text="Entropia: 0.00 bits", anchor="e")
+        self.entropy_label.pack(side="right", padx=(10, 0))
+
+        # --- Barra de Entropia ---
+        self.entropy_bar = customtkinter.CTkProgressBar(self, height=15, corner_radius=8)
+        self.entropy_bar.pack(fill="x", pady=(5, 10), expand=True)
+        self.entropy_bar.set(0) # Valor inicial
+
+        # --- Botão de Opções Avançadas ---
+        advanced_options_btn = customtkinter.CTkButton(self, text="Opções Avançadas", command=self.open_advanced_options)
+        advanced_options_btn.pack(fill="x", pady=10)
 
         # --- Botão de Gerar ---
         self.gerar_senha_btn = customtkinter.CTkButton(self, text="GERAR NOVA SENHA", command=self.generate_password, cursor="hand2", height=40, font=customtkinter.CTkFont(weight="bold"))
         self.gerar_senha_btn.pack(fill="x", ipady=5, pady=(10,0))
+
+    def open_advanced_options(self):
+        """Abre a janela de opções avançadas."""
+        if self.advanced_options_window is None or not self.advanced_options_window.winfo_exists():
+            self.advanced_options_window = AdvancedPasswordOptionsWindow(self, self.app)
+        self.advanced_options_window.focus()
 
     def generate_password(self):
         self.app.animate_generation(
