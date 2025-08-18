@@ -59,7 +59,7 @@ class PasswordTab(customtkinter.CTkFrame):
         self.comprimento_label = customtkinter.CTkLabel(opcoes_frame, text=f"Comprimento: {self.app.vars['comprimento_var'].get()}")
         self.comprimento_label.pack(anchor="w", padx=10, pady=(5,0))
 
-        customtkinter.CTkSlider(opcoes_frame, from_=8, to_=64, variable=self.app.vars['comprimento_var'], command=lambda v: self.comprimento_label.configure(text=f"Comprimento: {int(v)}")).pack(fill="x", pady=(0, 10), padx=10)
+        customtkinter.CTkSlider(opcoes_frame, from_=8, to=64, variable=self.app.vars['comprimento_var'], command=lambda v: self.comprimento_label.configure(text=f"Comprimento: {int(v)}")).pack(fill="x", pady=(0, 10), padx=10)
 
         customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Letras Maiúsculas (A-Z)", variable=self.app.vars['incluir_maiusculas']).pack(anchor="w", pady=2, padx=10)
         customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Letras Minúsculas (a-z)", variable=self.app.vars['incluir_minusculas']).pack(anchor="w", pady=2, padx=10)
