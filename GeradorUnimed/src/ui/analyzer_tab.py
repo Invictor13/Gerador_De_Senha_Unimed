@@ -20,6 +20,9 @@ class AnalyzerTab(ctk.CTkFrame):
         self._create_widgets()
         self._bind_events()
 
+        # Garante que o frame principal da aba se expanda para preencher o espaço
+        self.pack(expand=True, fill="both")
+
     def _create_widgets(self):
         """Cria os widgets da aba."""
         # --- Frame de Entrada ---
