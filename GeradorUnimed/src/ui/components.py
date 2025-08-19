@@ -76,48 +76,71 @@ class PasswordTab(customtkinter.CTkFrame):
         self.create_widgets()
 
     def create_widgets(self):
-        """Cria e posiciona os widgets da aba de senha com o novo layout vertical."""
-        # --- Configuração do Grid Principal (1 coluna) ---
+        """Cria e posiciona os widgets da aba de senha com a nova hierarquia."""
         self.grid_columnconfigure(0, weight=1)
-        # A linha 3 (botão) é empurrada para baixo para ocupar o espaço restante
-        self.grid_rowconfigure(3, weight=1)
+        # Configurar as linhas para o espaçamento
+        self.grid_rowconfigure(3, weight=1) # Empurra o histórico para baixo
 
         unimed_green = CONFIG["CORES"]["VERDE_UNIMED"]
 
-        # --- Linha 0: Painel de Geração (Senha + Copiar) ---
-        generation_panel = customtkinter.CTkFrame(self, fg_color="transparent")
-        generation_panel.grid(row=0, column=0, sticky="ew")
-        generation_panel.grid_columnconfigure(0, weight=1)
-
+        # A. Painel da Senha (proeminente no topo)
         self.senha_entry = customtkinter.CTkEntry(
-            generation_panel,
+            self,
             textvariable=self.app.vars["senha_gerada"],
-            font=customtkinter.CTkFont(size=14),
+            font=customtkinter.CTkFont(size=16), # Fonte maior para destaque
             justify="center",
-            height=40
+            height=45
         )
-        self.senha_entry.grid(row=0, column=0, sticky="ew")
+        self.senha_entry.grid(row=0, column=0, sticky="ew", pady=(10, 5))
 
+        # B. Painel de Ações Unificado
+        actions_panel = customtkinter.CTkFrame(self, fg_color="transparent")
+        actions_panel.grid(row=1, column=0, sticky="ew", pady=5)
+        # Grade interna de 3 colunas com peso igual e tamanho uniforme
+        actions_panel.grid_columnconfigure(0, weight=1, uniform="group1")
+        actions_panel.grid_columnconfigure(1, weight=1, uniform="group1")
+        actions_panel.grid_columnconfigure(2, weight=1, uniform="group1")
+
+        # Botão "Gerar Senha" (Coluna 0)
+        self.gerar_senha_btn = customtkinter.CTkButton(
+            actions_panel,
+            text="Gerar Senha",
+            command=self.generate_password,
+            height=40,
+            font=customtkinter.CTkFont(size=14, weight="bold"),
+            fg_color=unimed_green
+        )
+        self.gerar_senha_btn.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+
+        # Botão "Copiar" (Coluna 1)
         self.copiar_btn = customtkinter.CTkButton(
-            generation_panel,
+            actions_panel,
             text="Copiar",
             command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn),
-            width=100,
             height=40,
-            fg_color=unimed_green,
             font=customtkinter.CTkFont(size=14)
         )
-        self.copiar_btn.grid(row=0, column=1, sticky="e", padx=(10, 0))
+        self.copiar_btn.grid(row=0, column=1, sticky="ew", padx=5)
 
-        # --- Linha 1: Segurança (Banner de status de vazamento) ---
+        # Botão "Opções" (Coluna 2)
+        self.options_btn = customtkinter.CTkButton(
+            actions_panel,
+            text="Opções",
+            command=self.app.open_advanced_options,
+            height=40,
+            font=customtkinter.CTkFont(size=14)
+        )
+        self.options_btn.grid(row=0, column=2, sticky="ew", padx=(5, 0))
+
+        # C. Componentes Secundários
+        # Banner de Status
         self.status_frame = customtkinter.CTkFrame(self, fg_color="transparent", corner_radius=6, height=30)
-        self.status_frame.grid(row=1, column=0, sticky="ew", pady=16)
-        self.status_frame.pack_propagate(False) # Impede que o label redimensione o frame
+        self.status_frame.grid(row=2, column=0, sticky="ew", pady=10)
+        self.status_frame.pack_propagate(False)
         self.status_label = customtkinter.CTkLabel(self.status_frame, text="", font=customtkinter.CTkFont(weight="bold", size=14))
         self.status_label.pack(expand=True, fill="both")
 
-
-        # --- Linha 2: Histórico ---
+        # Combobox de Histórico
         self.history_menu = customtkinter.CTkComboBox(
             self,
             values=[],
@@ -127,22 +150,7 @@ class PasswordTab(customtkinter.CTkFrame):
             font=customtkinter.CTkFont(size=14)
         )
         self.history_menu.set("Histórico de Senhas")
-        self.history_menu.grid(row=2, column=0, sticky="ew", pady=16)
-
-        # --- Linha 3: Ação Principal (Botão Gerar Senha) ---
-        action_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        action_frame.grid(row=3, column=0, sticky="sew", pady=(16, 0)) # sticky 's' para alinhar ao sul
-        action_frame.grid_columnconfigure(0, weight=1)
-
-        self.gerar_senha_btn = customtkinter.CTkButton(
-            action_frame,
-            text="Gerar Senha",
-            command=self.generate_password,
-            height=50, # Tamanho proeminente
-            font=customtkinter.CTkFont(size=14, weight="bold"),
-            fg_color=unimed_green
-        )
-        self.gerar_senha_btn.grid(row=0, column=0, sticky="ew")
+        self.history_menu.grid(row=3, column=0, sticky="ew", pady=(5, 10))
 
 
     def generate_password(self):
