@@ -113,7 +113,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # --- ABAS (NOTEBOOK) ---
         notebook = customtkinter.CTkTabview(content_frame, width=550, height=450)
-        notebook.configure(font=customtkinter.CTkFont(weight="bold"))
+        # Nota do Arquiteto: O widget CTkTabView não suporta a configuração de fonte global. O estilo dev
         # REFINAMENTO DE ESPAÇAMENTO (O RESPIRO)
         notebook.grid(row=1, column=0, sticky="nsew", pady=24)
         # ESTABILIDADE ABSOLUTA: Impede o notebook de redimensionar com o conteúdo das abas
