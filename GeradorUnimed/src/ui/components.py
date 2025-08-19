@@ -79,11 +79,8 @@ class PasswordTab(customtkinter.CTkFrame):
         """Cria e posiciona os widgets da aba de senha com o novo layout vertical."""
         # --- Configuração do Grid Principal (1 coluna) ---
         self.grid_columnconfigure(0, weight=1)
-        # Configurar as linhas para espaçamento, a linha 3 (botão) terá mais espaço abaixo
-        self.grid_rowconfigure(0, pad=15)
-        self.grid_rowconfigure(1, pad=10)
-        self.grid_rowconfigure(2, pad=15)
-        self.grid_rowconfigure(3, weight=1) # Empurra o botão para baixo
+        # A linha 3 (botão) é empurrada para baixo para ocupar o espaço restante
+        self.grid_rowconfigure(3, weight=1)
 
         unimed_green = CONFIG["CORES"]["VERDE_UNIMED"]
 
@@ -113,7 +110,7 @@ class PasswordTab(customtkinter.CTkFrame):
 
         # --- Linha 1: Segurança (Banner de status de vazamento) ---
         self.status_frame = customtkinter.CTkFrame(self, fg_color="transparent", corner_radius=6, height=30)
-        self.status_frame.grid(row=1, column=0, sticky="ew", pady=5)
+        self.status_frame.grid(row=1, column=0, sticky="ew", pady=15)
         self.status_frame.pack_propagate(False) # Impede que o label redimensione o frame
         self.status_label = customtkinter.CTkLabel(self.status_frame, text="", font=customtkinter.CTkFont(weight="bold", size=14))
         self.status_label.pack(expand=True, fill="both")
@@ -128,11 +125,11 @@ class PasswordTab(customtkinter.CTkFrame):
             height=40
         )
         self.history_menu.set("Histórico de Senhas")
-        self.history_menu.grid(row=2, column=0, sticky="ew", pady=5)
+        self.history_menu.grid(row=2, column=0, sticky="ew", pady=15)
 
         # --- Linha 3: Ação Principal (Botão Gerar Senha) ---
         action_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        action_frame.grid(row=3, column=0, sticky="sew", pady=(20, 10)) # sticky 's' para alinhar ao sul
+        action_frame.grid(row=3, column=0, sticky="sew", pady=(15, 0)) # sticky 's' para alinhar ao sul
         action_frame.grid_columnconfigure(0, weight=1)
 
         self.gerar_senha_btn = customtkinter.CTkButton(
@@ -194,7 +191,7 @@ class PassphraseTab(customtkinter.CTkFrame):
     def create_widgets(self):
         # --- Frame de Resultado ---
         resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        resultado_frame.pack(fill="x", pady=5)
+        resultado_frame.pack(fill="x", pady=(0, 15))
 
         frase_font_config = CONFIG["FONTES"]["SENHA"]
         self.frase_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["frase_gerada"], font=customtkinter.CTkFont(family=frase_font_config[0], size=frase_font_config[1], weight=frase_font_config[2]), justify="center")
@@ -205,11 +202,11 @@ class PassphraseTab(customtkinter.CTkFrame):
         self.copiar_btn.pack(side="right", padx=(10, 0))
 
         self.entropy_label = customtkinter.CTkLabel(self, text="Entropia: 0 bits", anchor="center")
-        self.entropy_label.pack(fill="x", pady=5)
+        self.entropy_label.pack(fill="x", pady=(0, 15))
 
         # --- Frame de Opções ---
         opcoes_frame = customtkinter.CTkFrame(self)
-        opcoes_frame.pack(fill="both", expand=True, pady=10)
+        opcoes_frame.pack(fill="both", expand=True, pady=0)
 
         # --- Linha 1: Fonte das Palavras ---
         selecao_lista_frame = customtkinter.CTkFrame(opcoes_frame, fg_color="transparent")
@@ -235,7 +232,7 @@ class PassphraseTab(customtkinter.CTkFrame):
         # --- Botão de Gerar ---
         unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
         self.gerar_frase_btn = customtkinter.CTkButton(self, text="GERAR NOVA FRASE", command=self.generate_passphrase, cursor="hand2", height=40, font=customtkinter.CTkFont(weight="bold"), fg_color=unimed_color, hover_color=unimed_color)
-        self.gerar_frase_btn.pack(fill="x", ipady=5, pady=(10,0))
+        self.gerar_frase_btn.pack(fill="x", ipady=5, pady=(15, 0))
 
     def generate_passphrase(self):
         self.app.animate_generation(

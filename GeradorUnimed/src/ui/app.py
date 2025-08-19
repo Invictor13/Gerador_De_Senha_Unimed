@@ -44,12 +44,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.title("Gerador de Senhas - Unimed")
         self.configure(bg="black") # FUNDAÇÃO: Fundo preto
 
-        # Forçar maximização
-        largura_tela = self.winfo_screenwidth()
-        altura_tela = self.winfo_screenheight()
-        self.geometry(f"{largura_tela}x{altura_tela}+0+0")
-        self.attributes('-fullscreen', True) # Inicia maximizado
-        self.bind("<Escape>", self.exit_fullscreen)
+        # GARANTIA DE JANELA MAXIMIZADA
+        self.wm_state('zoomed')
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -116,7 +112,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # --- ABAS (NOTEBOOK) ---
         notebook = customtkinter.CTkTabview(content_frame, width=550, height=450)
-        notebook.grid(row=1, column=0, sticky="nsew")
+        # REFINAMENTO DE ESPAÇAMENTO (O RESPIRO)
+        notebook.grid(row=1, column=0, sticky="nsew", pady=25)
         # ESTABILIDADE ABSOLUTA: Impede o notebook de redimensionar com o conteúdo das abas
         notebook.grid_propagate(False)
 
@@ -134,7 +131,17 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         """Cria o rodapé com o botão de configurações."""
         footer_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
         footer_frame.grid(row=2, column=0, sticky="sew", pady=(10, 5), padx=10)
-        footer_frame.grid_columnconfigure(0, weight=1) # Garante que a coluna expanda
+
+        # O RODAPÉ ASSINADO: Configura a grade para empurrar a engrenagem para a direita
+        footer_frame.grid_columnconfigure(0, weight=1)
+
+        author_label = customtkinter.CTkLabel(
+            footer_frame,
+            text="Desenvolvido por Victor Viana",
+            font=customtkinter.CTkFont(size=10),
+            text_color="gray70" # Cor sutil para o crédito
+        )
+        author_label.grid(row=0, column=0, sticky="w")
 
         try:
             script_dir = os.path.dirname(__file__)
@@ -282,7 +289,3 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def handle_focus_out(self, event):
         """Pausa a animação quando a janela perde foco para economizar CPU."""
         self.animator.stop()
-
-    def exit_fullscreen(self, event=None):
-        """Sai do modo de tela cheia."""
-        self.attributes('-fullscreen', False)
