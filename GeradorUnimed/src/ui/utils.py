@@ -78,7 +78,7 @@ class AnimatedWord:
 
         for i, symbol_id in enumerate(self.symbols):
             self.canvas.moveto(symbol_id, x, y + (i * self.font_size))
-            self.canvas.itemconfig(symbol_id, fill=CONFIG["CORES"]["VERDE_ANIMACAO_SCRAMBLE"])
+            self.canvas.itemconfig(symbol_id, fill="white") # Animação de fundo transita entre branco...
 
     def hide(self):
         """Move os símbolos para fora da tela."""
@@ -106,20 +106,18 @@ class AnimatedWord:
                 self.state = "visible"
                 self.cycle_counter = 0
                 for i, symbol_id in enumerate(self.symbols):
-                    self.canvas.itemconfig(symbol_id, text=self.word[i], fill=CONFIG["CORES"]["VERDE_ANIMACAO_FINAL"])
+                    self.canvas.itemconfig(symbol_id, text=self.word[i], fill=CONFIG["CORES"]["VERDE_UNIMED"]) # ...e o verde Unimed
 
         elif self.state == "visible":
-            # Alterna a cor da palavra entre verde e preto a cada 5 ciclos
-            if self.cycle_counter % 10 < 5:
-                new_color = CONFIG["CORES"]["VERDE_ANIMACAO_FINAL"]
-            else:
-                new_color = "black"
-
+            # Pulsa a cor da palavra entre verde e branco
+            pulse = (math.sin(self.cycle_counter * 0.1) + 1) / 2
+            # Reutilizando a função de fade_color do animator
+            new_color = UnimedWordAnimator.fade_color(None, "#FFFFFF", CONFIG["CORES"]["VERDE_UNIMED"], pulse)
             for symbol_id in self.symbols:
                 self.canvas.itemconfig(symbol_id, fill=new_color)
 
             # Permanece visível por um tempo, depois some (tempo reduzido)
-            if self.cycle_counter > random.randint(20, 40):
+            if self.cycle_counter > random.randint(40, 60):
                 self.hide()
 
 class UnimedWordAnimator:
@@ -150,7 +148,7 @@ class UnimedWordAnimator:
         # Animação do título principal
         self.title_animation_step += 0.05
         pulse = (math.sin(self.title_animation_step) + 1) / 2
-        new_color = self.fade_color("#FFFFFF", CONFIG["CORES"]["VERDE_PRIMARIO"], pulse)
+        new_color = self.fade_color("#FFFFFF", CONFIG["CORES"]["VERDE_UNIMED"], pulse)
         self.header_label.configure(text_color=new_color)
 
         # Anima cada palavra
