@@ -49,6 +49,14 @@ class AnalyzerTab(ctk.CTkFrame):
         criteria_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
         criteria_frame.grid_columnconfigure(0, weight=1)
 
+        # HIERARQUIA TIPOGRÁFICA: Título em negrito
+        title_label = ctk.CTkLabel(
+            criteria_frame,
+            text="Critérios de Segurança",
+            font=ctk.CTkFont(weight="bold")
+        )
+        title_label.grid(row=0, column=0, padx=5, pady=(0, 10), sticky="w")
+
         self.criteria_labels = {
             "length_ok": self._create_criterion_label(criteria_frame, "Pelo menos 10 caracteres"),
             "case_ok": self._create_criterion_label(criteria_frame, "Letras maiúsculas e minúsculas"),
@@ -57,9 +65,9 @@ class AnalyzerTab(ctk.CTkFrame):
             "no_common_names": self._create_criterion_label(criteria_frame, "Não contém nomes comuns (ex: 'unimed')")
         }
 
-        # Posiciona os labels no grid
+        # Posiciona os labels no grid, começando da linha 1
         for i, label in enumerate(self.criteria_labels.values()):
-            label.grid(row=i, column=0, padx=5, pady=2, sticky="w")
+            label.grid(row=i + 1, column=0, padx=5, pady=2, sticky="w")
 
     def _create_criterion_label(self, parent, text):
         """Cria um label para um critério de validação."""
