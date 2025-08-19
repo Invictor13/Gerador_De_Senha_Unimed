@@ -100,7 +100,8 @@ class PasswordTab(customtkinter.CTkFrame):
             password_frame,
             text="Copiar",
             command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn),
-            width=100
+            width=100,
+            fg_color="#343638"
         )
         self.copiar_btn.grid(row=0, column=1, sticky="e", padx=(10, 0))
 
@@ -127,7 +128,7 @@ class PasswordTab(customtkinter.CTkFrame):
 
         # --- Frame de Ações com Botões Circulares (Linha 2) ---
         action_buttons_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        action_buttons_frame.grid(row=2, column=0, sticky="s", pady=20)
+        action_buttons_frame.grid(row=2, column=0, sticky="s", pady=(40, 20))
         action_buttons_frame.grid_columnconfigure(0, weight=1)
         action_buttons_frame.grid_columnconfigure(1, weight=1)
 
@@ -135,10 +136,11 @@ class PasswordTab(customtkinter.CTkFrame):
             action_buttons_frame,
             text="Gerar Senha",
             command=self.generate_password,
-            width=150,
-            height=150,
-            corner_radius=75,
-            font=customtkinter.CTkFont(size=16, weight="bold")
+            width=120,
+            height=120,
+            corner_radius=60,
+            font=customtkinter.CTkFont(size=16, weight="bold"),
+            fg_color=CONFIG["CORES"]["VERDE_UNIMED"]
         )
         self.gerar_senha_btn.grid(row=0, column=0, padx=15, pady=15)
 
@@ -146,10 +148,11 @@ class PasswordTab(customtkinter.CTkFrame):
             action_buttons_frame,
             text="Opções",
             command=self.open_advanced_options,
-            width=150,
-            height=150,
-            corner_radius=75,
-            font=customtkinter.CTkFont(size=16, weight="bold")
+            width=120,
+            height=120,
+            corner_radius=60,
+            font=customtkinter.CTkFont(size=16, weight="bold"),
+            fg_color="#343638"
         )
         self.opcoes_btn.grid(row=0, column=1, padx=15, pady=15)
 

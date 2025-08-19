@@ -103,7 +103,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # O frame interno agora controla o padding e o conteúdo, mas não o tamanho total
         content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
-        content_frame.pack(padx=10, pady=5, ipadx=20, ipady=10, expand=True, fill="both")
+        content_frame.pack(padx=20, pady=20, expand=True, fill="both")
         content_frame.grid_rowconfigure(2, weight=1) # Permite que o notebook expanda
         content_frame.grid_columnconfigure(0, weight=1)
 
