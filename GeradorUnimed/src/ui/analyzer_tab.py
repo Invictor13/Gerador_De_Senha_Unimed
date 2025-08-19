@@ -33,14 +33,16 @@ class AnalyzerTab(ctk.CTkFrame):
         self.password_entry = ctk.CTkEntry(
             entry_frame,
             placeholder_text="Digite a senha para analisar...",
-            show="*"
+            show="*",
+            font=ctk.CTkFont(size=14)
         )
         self.password_entry.grid(row=0, column=0, padx=(0, 10), pady=10, sticky="ew")
 
         self.reveal_checkbox = ctk.CTkCheckBox(
             entry_frame,
             text="Revelar Senha",
-            command=self._toggle_password_visibility
+            command=self._toggle_password_visibility,
+            font=ctk.CTkFont(size=14)
         )
         self.reveal_checkbox.grid(row=0, column=1, padx=10, pady=10)
 
@@ -53,7 +55,7 @@ class AnalyzerTab(ctk.CTkFrame):
         title_label = ctk.CTkLabel(
             criteria_frame,
             text="Critérios de Segurança",
-            font=ctk.CTkFont(weight="bold")
+            font=ctk.CTkFont(size=14, weight="bold")
         )
         title_label.grid(row=0, column=0, padx=5, pady=(0, 10), sticky="w")
 
@@ -74,7 +76,8 @@ class AnalyzerTab(ctk.CTkFrame):
         label = ctk.CTkLabel(
             parent,
             text=f"❌ {text}",
-            text_color="red"
+            text_color="red",
+            font=ctk.CTkFont(size=14)
         )
         return label
 

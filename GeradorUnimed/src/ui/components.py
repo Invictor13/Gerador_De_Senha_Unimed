@@ -33,38 +33,38 @@ class AdvancedPasswordOptionsWindow(customtkinter.CTkToplevel):
     def create_widgets(self):
         """Cria os widgets de configuração na janela."""
         main_frame = customtkinter.CTkFrame(self)
-        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        main_frame.pack(fill="both", expand=True, padx=8, pady=8)
 
         # --- Frame de Opções ---
         opcoes_frame = customtkinter.CTkFrame(main_frame)
-        opcoes_frame.pack(fill="x", pady=10, expand=True)
+        opcoes_frame.pack(fill="x", pady=8, expand=True)
 
-        self.comprimento_label = customtkinter.CTkLabel(opcoes_frame, text=f"Comprimento: {self.app.vars['comprimento_var'].get()}")
-        self.comprimento_label.pack(anchor="w", padx=10, pady=(5,0))
+        self.comprimento_label = customtkinter.CTkLabel(opcoes_frame, text=f"Comprimento: {self.app.vars['comprimento_var'].get()}", font=customtkinter.CTkFont(size=14))
+        self.comprimento_label.pack(anchor="w", padx=8, pady=(8,0))
 
-        customtkinter.CTkSlider(opcoes_frame, from_=8, to=64, variable=self.app.vars['comprimento_var'], command=lambda v: self.comprimento_label.configure(text=f"Comprimento: {int(v)}")).pack(fill="x", pady=(0, 10), padx=10)
+        customtkinter.CTkSlider(opcoes_frame, from_=8, to=64, variable=self.app.vars['comprimento_var'], command=lambda v: self.comprimento_label.configure(text=f"Comprimento: {int(v)}")).pack(fill="x", pady=(0, 8), padx=8)
 
-        customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Letras Maiúsculas (A-Z)", variable=self.app.vars['incluir_maiusculas']).pack(anchor="w", pady=2, padx=10)
-        customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Letras Minúsculas (a-z)", variable=self.app.vars['incluir_minusculas']).pack(anchor="w", pady=2, padx=10)
-        customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Números (0-9)", variable=self.app.vars['incluir_numeros']).pack(anchor="w", pady=2, padx=10)
+        customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Letras Maiúsculas (A-Z)", variable=self.app.vars['incluir_maiusculas'], font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)
+        customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Letras Minúsculas (a-z)", variable=self.app.vars['incluir_minusculas'], font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)
+        customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Números (0-9)", variable=self.app.vars['incluir_numeros'], font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)
 
-        especiais_check = customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Caracteres Especiais", variable=self.app.vars['incluir_especiais'])
-        especiais_check.pack(anchor="w", pady=2, padx=10)
+        especiais_check = customtkinter.CTkCheckBox(opcoes_frame, text="Incluir Caracteres Especiais", variable=self.app.vars['incluir_especiais'], font=customtkinter.CTkFont(size=14))
+        especiais_check.pack(anchor="w", pady=4, padx=8)
 
         especiais_frame = customtkinter.CTkFrame(opcoes_frame, fg_color="transparent")
-        especiais_frame.pack(fill="x", padx=(30,10))
-        customtkinter.CTkEntry(especiais_frame, textvariable=self.app.vars['caracteres_especiais_var']).pack(fill="x")
+        especiais_frame.pack(fill="x", padx=(24,8))
+        customtkinter.CTkEntry(especiais_frame, textvariable=self.app.vars['caracteres_especiais_var'], font=customtkinter.CTkFont(size=14)).pack(fill="x")
 
-        cb_ambiguos = customtkinter.CTkCheckBox(opcoes_frame, text="Excluir Caracteres Ambíguos", variable=self.app.vars['excluir_ambiguos'])
-        cb_ambiguos.pack(anchor="w", pady=(10,5), padx=10)
+        cb_ambiguos = customtkinter.CTkCheckBox(opcoes_frame, text="Excluir Caracteres Ambíguos", variable=self.app.vars['excluir_ambiguos'], font=customtkinter.CTkFont(size=14))
+        cb_ambiguos.pack(anchor="w", pady=(8,4), padx=8)
 
         # --- Checkbox de Animação ---
-        customtkinter.CTkCheckBox(opcoes_frame, text="Ativar animação de fundo", variable=self.app.vars["animacao_ativa"], command=self.app.toggle_animation).pack(anchor="w", pady=5, padx=10)
+        customtkinter.CTkCheckBox(opcoes_frame, text="Ativar animação de fundo", variable=self.app.vars["animacao_ativa"], command=self.app.toggle_animation, font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)
 
         # --- Botão de Fechar ---
         unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
-        close_button = customtkinter.CTkButton(main_frame, text="Fechar", command=self.destroy, fg_color=unimed_color, hover_color=unimed_color)
-        close_button.pack(pady=(10,0), side="bottom")
+        close_button = customtkinter.CTkButton(main_frame, text="Fechar", command=self.destroy, fg_color=unimed_color, hover_color=unimed_color, font=customtkinter.CTkFont(size=14))
+        close_button.pack(pady=(8,0), side="bottom")
 
 
 class PasswordTab(customtkinter.CTkFrame):
@@ -72,7 +72,7 @@ class PasswordTab(customtkinter.CTkFrame):
     def __init__(self, parent, app_controller):
         super().__init__(parent, fg_color="transparent")
         self.app = app_controller
-        self.pack(fill="both", expand=True, padx=20, pady=10)
+        self.pack(fill="both", expand=True, padx=16, pady=8)
         self.create_widgets()
 
     def create_widgets(self):
@@ -92,7 +92,7 @@ class PasswordTab(customtkinter.CTkFrame):
         self.senha_entry = customtkinter.CTkEntry(
             generation_panel,
             textvariable=self.app.vars["senha_gerada"],
-            font=("Segoe UI", 18),
+            font=customtkinter.CTkFont(size=14),
             justify="center",
             height=40
         )
@@ -104,13 +104,14 @@ class PasswordTab(customtkinter.CTkFrame):
             command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn),
             width=100,
             height=40,
-            fg_color=unimed_green
+            fg_color=unimed_green,
+            font=customtkinter.CTkFont(size=14)
         )
         self.copiar_btn.grid(row=0, column=1, sticky="e", padx=(10, 0))
 
         # --- Linha 1: Segurança (Banner de status de vazamento) ---
         self.status_frame = customtkinter.CTkFrame(self, fg_color="transparent", corner_radius=6, height=30)
-        self.status_frame.grid(row=1, column=0, sticky="ew", pady=15)
+        self.status_frame.grid(row=1, column=0, sticky="ew", pady=16)
         self.status_frame.pack_propagate(False) # Impede que o label redimensione o frame
         self.status_label = customtkinter.CTkLabel(self.status_frame, text="", font=customtkinter.CTkFont(weight="bold", size=14))
         self.status_label.pack(expand=True, fill="both")
@@ -122,14 +123,15 @@ class PasswordTab(customtkinter.CTkFrame):
             values=[],
             state="readonly",
             command=self.app.on_history_select,
-            height=40
+            height=40,
+            font=customtkinter.CTkFont(size=14)
         )
         self.history_menu.set("Histórico de Senhas")
-        self.history_menu.grid(row=2, column=0, sticky="ew", pady=15)
+        self.history_menu.grid(row=2, column=0, sticky="ew", pady=16)
 
         # --- Linha 3: Ação Principal (Botão Gerar Senha) ---
         action_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        action_frame.grid(row=3, column=0, sticky="sew", pady=(15, 0)) # sticky 's' para alinhar ao sul
+        action_frame.grid(row=3, column=0, sticky="sew", pady=(16, 0)) # sticky 's' para alinhar ao sul
         action_frame.grid_columnconfigure(0, weight=1)
 
         self.gerar_senha_btn = customtkinter.CTkButton(
@@ -137,7 +139,7 @@ class PasswordTab(customtkinter.CTkFrame):
             text="Gerar Senha",
             command=self.generate_password,
             height=50, # Tamanho proeminente
-            font=customtkinter.CTkFont(size=16, weight="bold"),
+            font=customtkinter.CTkFont(size=14, weight="bold"),
             fg_color=unimed_green
         )
         self.gerar_senha_btn.grid(row=0, column=0, sticky="ew")
@@ -191,18 +193,17 @@ class PassphraseTab(customtkinter.CTkFrame):
     def create_widgets(self):
         # --- Frame de Resultado ---
         resultado_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        resultado_frame.pack(fill="x", pady=(0, 15))
+        resultado_frame.pack(fill="x", pady=(0, 16))
 
-        frase_font_config = CONFIG["FONTES"]["SENHA"]
-        self.frase_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["frase_gerada"], font=customtkinter.CTkFont(family=frase_font_config[0], size=frase_font_config[1], weight=frase_font_config[2]), justify="center")
+        self.frase_entry = customtkinter.CTkEntry(resultado_frame, textvariable=self.app.vars["frase_gerada"], font=customtkinter.CTkFont(size=14), justify="center")
         self.frase_entry.pack(side="left", fill="x", expand=True, ipady=5)
 
         unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
-        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["frase_gerada"].get(), self.copiar_btn), cursor="hand2", fg_color=unimed_color, hover_color=unimed_color)
-        self.copiar_btn.pack(side="right", padx=(10, 0))
+        self.copiar_btn = customtkinter.CTkButton(resultado_frame, text="Copiar", command=lambda: self.app.copy_to_clipboard(self.app.vars["frase_gerada"].get(), self.copiar_btn), cursor="hand2", fg_color=unimed_color, hover_color=unimed_color, font=customtkinter.CTkFont(size=14))
+        self.copiar_btn.pack(side="right", padx=(8, 0))
 
-        self.entropy_label = customtkinter.CTkLabel(self, text="Entropia: 0 bits", anchor="center")
-        self.entropy_label.pack(fill="x", pady=(0, 15))
+        self.entropy_label = customtkinter.CTkLabel(self, text="Entropia: 0 bits", anchor="center", font=customtkinter.CTkFont(size=14))
+        self.entropy_label.pack(fill="x", pady=(0, 16))
 
         # --- Frame de Opções ---
         opcoes_frame = customtkinter.CTkFrame(self)
@@ -210,29 +211,29 @@ class PassphraseTab(customtkinter.CTkFrame):
 
         # --- Linha 1: Fonte das Palavras ---
         selecao_lista_frame = customtkinter.CTkFrame(opcoes_frame, fg_color="transparent")
-        selecao_lista_frame.pack(fill="x", pady=5, padx=10)
-        customtkinter.CTkLabel(selecao_lista_frame, text="Fonte das Palavras:").pack(side="left")
-        self.wordlist_combo = customtkinter.CTkComboBox(selecao_lista_frame, variable=self.app.vars['lista_palavras_selecionada_var'], values=list(self.wordlists.keys()), state="readonly", command=self.on_wordlist_select)
-        self.wordlist_combo.pack(side="right", fill="x", expand=True, padx=(10,0))
+        selecao_lista_frame.pack(fill="x", pady=8, padx=8)
+        customtkinter.CTkLabel(selecao_lista_frame, text="Fonte das Palavras:", font=customtkinter.CTkFont(size=14)).pack(side="left")
+        self.wordlist_combo = customtkinter.CTkComboBox(selecao_lista_frame, variable=self.app.vars['lista_palavras_selecionada_var'], values=list(self.wordlists.keys()), state="readonly", command=self.on_wordlist_select, font=customtkinter.CTkFont(size=14))
+        self.wordlist_combo.pack(side="right", fill="x", expand=True, padx=(8,0))
 
         # --- Linha 2: Número de Palavras e Separador ---
         config_line_frame = customtkinter.CTkFrame(opcoes_frame, fg_color="transparent")
-        config_line_frame.pack(fill="x", pady=5, padx=10)
+        config_line_frame.pack(fill="x", pady=8, padx=8)
 
-        customtkinter.CTkLabel(config_line_frame, text="Nº de Palavras:").pack(side="left")
-        customtkinter.CTkOptionMenu(config_line_frame, variable=self.app.vars['num_palavras_var'], values=[str(i) for i in range(3,11)], width=70).pack(side="left", padx=(5,20))
+        customtkinter.CTkLabel(config_line_frame, text="Nº de Palavras:", font=customtkinter.CTkFont(size=14)).pack(side="left")
+        customtkinter.CTkOptionMenu(config_line_frame, variable=self.app.vars['num_palavras_var'], values=[str(i) for i in range(3,11)], width=70, font=customtkinter.CTkFont(size=14)).pack(side="left", padx=(8,16))
 
-        customtkinter.CTkLabel(config_line_frame, text="Separador:").pack(side="left")
-        customtkinter.CTkEntry(config_line_frame, textvariable=self.app.vars['separador_var'], width=70).pack(side="left", padx=(5,0))
+        customtkinter.CTkLabel(config_line_frame, text="Separador:", font=customtkinter.CTkFont(size=14)).pack(side="left")
+        customtkinter.CTkEntry(config_line_frame, textvariable=self.app.vars['separador_var'], width=70, font=customtkinter.CTkFont(size=14)).pack(side="left", padx=(8,0))
 
         # --- Área de Texto para Lista de Palavras ---
-        self.wordlist_text = scrolledtext.ScrolledText(opcoes_frame, height=8, wrap=tk.WORD, font=CONFIG["FONTES"]["PRINCIPAL"], relief="solid", borderwidth=1)
-        self.wordlist_text.pack(fill="both", expand=True, pady=(5,0), padx=10)
+        self.wordlist_text = scrolledtext.ScrolledText(opcoes_frame, height=8, wrap=tk.WORD, font=("", 14), relief="solid", borderwidth=1)
+        self.wordlist_text.pack(fill="both", expand=True, pady=(8,0), padx=8)
 
         # --- Botão de Gerar ---
         unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
-        self.gerar_frase_btn = customtkinter.CTkButton(self, text="GERAR NOVA FRASE", command=self.generate_passphrase, cursor="hand2", height=40, font=customtkinter.CTkFont(weight="bold"), fg_color=unimed_color, hover_color=unimed_color)
-        self.gerar_frase_btn.pack(fill="x", ipady=5, pady=(15, 0))
+        self.gerar_frase_btn = customtkinter.CTkButton(self, text="GERAR NOVA FRASE", command=self.generate_passphrase, cursor="hand2", height=40, font=customtkinter.CTkFont(size=14, weight="bold"), fg_color=unimed_color, hover_color=unimed_color)
+        self.gerar_frase_btn.pack(fill="x", ipady=5, pady=(16, 0))
 
     def generate_passphrase(self):
         self.app.animate_generation(
