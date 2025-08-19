@@ -19,7 +19,7 @@ from PIL import Image
 from src.config import CONFIG
 from src.logic import PasswordGenerator, SettingsManager, check_pwned, PasswordValidator
 from src.ui.analyzer_tab import AnalyzerTab
-from src.ui.components import PassphraseTab, PasswordTab
+from src.ui.components import PassphraseTab, PasswordTab, AdvancedPasswordOptionsWindow
 from src.ui.utils import Tooltip, UnimedWordAnimator
 
 # 6. CLASSE PRINCIPAL DA APLICAÇÃO
@@ -30,32 +30,26 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        # --- Cálculo de Dimensões Proporcionais ---
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        self.frame_width = screen_width * 0.5
-        self.frame_height = screen_height * 0.6
-
         # --- Inicialização de Módulos ---
         self.settings_manager = SettingsManager()
         self.password_generator = PasswordGenerator()
         self.settings = self.settings_manager.load_settings()
         self.password_history = []
+        self.advanced_options_window = None
 
-        # --- Configuração do Tema ---
+
+        # --- Configuração do Tema e Janela ---
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
+        self.title("Gerador de Senhas - Unimed")
+        self.configure(bg="black") # FUNDAÇÃO: Fundo preto
 
-        self.title("Gerador de Senhas e Frases - UNIMED (Refatorado)")
-
-        # --- Configuração da Janela ---
+        # Forçar maximização
         largura_tela = self.winfo_screenwidth()
         altura_tela = self.winfo_screenheight()
         self.geometry(f"{largura_tela}x{altura_tela}+0+0")
+        self.attributes('-fullscreen', True) # Inicia maximizado
         self.bind("<Escape>", self.exit_fullscreen)
-
-        self.minsize(700, 650)   # Tamanho mínimo para evitar quebra de layout
-        self.resizable(True, True) # Permite redimensionamento
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -90,45 +84,41 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
     def create_main_widgets(self):
         """Cria a estrutura principal da UI."""
-        self.animation_canvas = customtkinter.CTkCanvas(self, highlightthickness=0)
+        self.animation_canvas = customtkinter.CTkCanvas(self, bg="black", highlightthickness=0)
         self.animation_canvas.place(relwidth=1, relheight=1)
 
         # --- Configuração do Grid Central ---
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # --- Frame Principal com Tamanho Fixo e Proporcional ---
-        main_labelframe = customtkinter.CTkFrame(self, corner_radius=10, width=self.frame_width, height=self.frame_height)
-        main_labelframe.grid(row=0, column=0)
+        # --- EFEITO DE SOMBRA (3D) ---
+        # 1. O frame externo "sombra" é ligeiramente maior e mais escuro
+        shadow_frame = customtkinter.CTkFrame(self, fg_color="#1a1a1a", corner_radius=10)
+        shadow_frame.grid(row=0, column=0)
 
-        # O frame interno agora controla o padding e o conteúdo, mas não o tamanho total
-        content_frame = customtkinter.CTkFrame(main_labelframe, fg_color="transparent", corner_radius=10)
-        content_frame.pack(padx=20, pady=20, expand=True, fill="both")
-        content_frame.grid_rowconfigure(2, weight=1) # Permite que o notebook expanda
+        # 2. O frame interno "conteúdo" tem a cor padrão e um pequeno padding
+        content_frame = customtkinter.CTkFrame(shadow_frame, corner_radius=10)
+        content_frame.grid(row=0, column=0, padx=2, pady=2)
         content_frame.grid_columnconfigure(0, weight=1)
+        content_frame.grid_rowconfigure(1, weight=1) # Linha do notebook deve expandir
 
-
+        # --- CABEÇALHO ---
         header_font_config = CONFIG["FONTES"]["CABECALHO"]
-        self.header_label = customtkinter.CTkLabel(content_frame, text="Gerador de Senhas", font=customtkinter.CTkFont(family=header_font_config[0], size=header_font_config[1], weight=header_font_config[2]))
-        self.header_label.grid(row=0, column=0, pady=(0, 10))
+        self.header_label = customtkinter.CTkLabel(
+            content_frame,
+            text="Gerador de Senhas - Unimed",
+            font=customtkinter.CTkFont(family=header_font_config[0], size=header_font_config[1], weight=header_font_config[2])
+        )
+        self.header_label.grid(row=0, column=0, pady=(10, 15))
 
+        # O Animator agora usa o canvas preto e o novo header
         self.animator = UnimedWordAnimator(self.animation_canvas, self.header_label)
 
-        try:
-            # Constrói o caminho para o logo a partir da localização deste script
-            script_dir = os.path.dirname(__file__)
-            logo_path = os.path.abspath(os.path.join(script_dir, '..', '..', 'assets', 'logo.png'))
-            img_aberta = Image.open(logo_path)
-            self.logo_image = customtkinter.CTkImage(light_image=img_aberta, dark_image=img_aberta, size=(100, int(100 * img_aberta.size[1] / img_aberta.size[0])))
-            logo_widget = customtkinter.CTkLabel(content_frame, image=self.logo_image, text="")
-            logo_widget.grid(row=1, column=0, pady=(0, 20))
-        except Exception:
-            logo_widget = customtkinter.CTkLabel(content_frame, text="UNIMED", font=customtkinter.CTkFont(size=24, weight="bold"))
-            logo_widget.grid(row=1, column=0, pady=10)
-
-        # --- Abas ---
-        notebook = customtkinter.CTkTabview(content_frame)
-        notebook.grid(row=2, column=0, sticky="nsew", pady=(0, 15))
+        # --- ABAS (NOTEBOOK) ---
+        notebook = customtkinter.CTkTabview(content_frame, width=550, height=450)
+        notebook.grid(row=1, column=0, sticky="nsew")
+        # ESTABILIDADE ABSOLUTA: Impede o notebook de redimensionar com o conteúdo das abas
+        notebook.grid_propagate(False)
 
         senha_tab = notebook.add("SENHA")
         frase_tab = notebook.add("FRASE-SENHA")
@@ -138,12 +128,44 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.tab_frase = PassphraseTab(frase_tab, self)
         self.tab_analyzer = AnalyzerTab(analyzer_tab)
 
-        self.create_common_widgets(content_frame)
+        self.create_footer(content_frame)
 
-    def create_common_widgets(self, parent_frame):
-        """Cria widgets comuns a toda a aplicação."""
-        # O frame de configurações foi removido daqui para um local mais apropriado.
-        pass
+    def create_footer(self, parent_frame):
+        """Cria o rodapé com o botão de configurações."""
+        footer_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
+        footer_frame.grid(row=2, column=0, sticky="sew", pady=(10, 5), padx=10)
+        footer_frame.grid_columnconfigure(0, weight=1) # Garante que a coluna expanda
+
+        try:
+            script_dir = os.path.dirname(__file__)
+            icon_path = os.path.abspath(os.path.join(script_dir, '..', 'assets', 'gear_icon.png'))
+            gear_image_pil = Image.open(icon_path)
+            self.gear_image = customtkinter.CTkImage(light_image=gear_image_pil, dark_image=gear_image_pil, size=(24, 24))
+
+            settings_button = customtkinter.CTkButton(
+                footer_frame,
+                text="",
+                image=self.gear_image,
+                fg_color="transparent",
+                width=30,
+                height=30,
+                command=self.open_advanced_options
+            )
+            settings_button.grid(row=0, column=1, sticky="e") # Alinhado à direita
+        except FileNotFoundError:
+            # Fallback caso o ícone não seja encontrado
+            settings_button = customtkinter.CTkButton(
+                footer_frame,
+                text="Opções",
+                command=self.open_advanced_options
+            )
+            settings_button.grid(row=0, column=1, sticky="e")
+
+    def open_advanced_options(self):
+        """Abre a janela de opções avançadas."""
+        if self.advanced_options_window is None or not self.advanced_options_window.winfo_exists():
+            self.advanced_options_window = AdvancedPasswordOptionsWindow(self, self)
+        self.advanced_options_window.focus()
 
     def animate_generation(self, button, target_var, length, final_callback):
         """Anima o campo de texto antes de mostrar o resultado final."""
@@ -190,21 +212,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
 
 
-        # --- Lógica da Barra de Entropia ---
-        max_entropy = 128.0
-        normalized_entropy = min(entropia / max_entropy, 1.0)
-
-        self.tab_senha.entropy_bar.set(normalized_entropy)
-
-        if entropia < 40:
-            color = "#FF4141" # Vermelho
-        elif entropia < 80:
-            color = "#FFDB58" # Amarelo
-        else:
-            color = "#00A34D" # Verde
-
-        self.tab_senha.entropy_bar.configure(progress_color=color)
-        self.tab_senha.entropy_label.configure(text=f"Entropia: {entropia:.2f} bits")
+        # A lógica da barra de entropia foi removida do novo design.
         self.update_history(senha)
 
 
@@ -240,20 +248,15 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.vars["senha_gerada"].set(choice)
         entropia = self.password_generator.analyze_password(choice, self.vars["caracteres_especiais_var"].get())
 
-        # --- Lógica da Barra de Entropia (Repetida para o Histórico) ---
-        max_entropy = 128.0
-        normalized_entropy = min(entropia / max_entropy, 1.0)
-        self.tab_senha.entropy_bar.set(normalized_entropy)
-
-        if entropia < 40:
-            color = "#FF4141"
-        elif entropia < 80:
-            color = "#FFDB58"
+        # A lógica da barra de entropia foi removida do novo design.
+        # A verificação de pwned também pode ser acionada aqui, se desejado.
+        is_pwned = check_pwned(choice)
+        if is_pwned:
+            self.tab_senha.status_frame.configure(fg_color="red")
+            self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
         else:
-            color = "#00A34D"
-
-        self.tab_senha.entropy_bar.configure(progress_color=color)
-        self.tab_senha.entropy_label.configure(text=f"Entropia: {entropia:.2f} bits")
+            self.tab_senha.status_frame.configure(fg_color="green")
+            self.tab_senha.status_label.configure(text="SENHA SEGURA")
 
 
     def toggle_animation(self):
