@@ -45,6 +45,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.configure(bg="black") # FUNDAÇÃO: Fundo preto
 
         # GARANTIA DE JANELA MAXIMIZADA
+        self.geometry("1280x720")
+        self.update_idletasks()
         self.wm_state('zoomed')
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -99,13 +101,12 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         content_frame.grid_rowconfigure(1, weight=1) # Linha do notebook deve expandir
 
         # --- CABEÇALHO ---
-        header_font_config = CONFIG["FONTES"]["CABECALHO"]
         self.header_label = customtkinter.CTkLabel(
             content_frame,
             text="Gerador de Senhas - Unimed",
-            font=customtkinter.CTkFont(family=header_font_config[0], size=header_font_config[1], weight=header_font_config[2])
+            font=customtkinter.CTkFont(size=24, weight="bold")
         )
-        self.header_label.grid(row=0, column=0, pady=(10, 15))
+        self.header_label.grid(row=0, column=0, pady=16)
 
         # O Animator agora usa o canvas preto e o novo header
         self.animator = UnimedWordAnimator(self.animation_canvas, self.header_label)
@@ -113,13 +114,13 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         # --- ABAS (NOTEBOOK) ---
         notebook = customtkinter.CTkTabview(content_frame, width=550, height=450)
         # REFINAMENTO DE ESPAÇAMENTO (O RESPIRO)
-        notebook.grid(row=1, column=0, sticky="nsew", pady=25)
+        notebook.grid(row=1, column=0, sticky="nsew", pady=24)
         # ESTABILIDADE ABSOLUTA: Impede o notebook de redimensionar com o conteúdo das abas
         notebook.grid_propagate(False)
 
-        senha_tab = notebook.add("SENHA")
-        frase_tab = notebook.add("FRASE-SENHA")
-        analyzer_tab = notebook.add("ANALISADOR")
+        senha_tab = notebook.add("  SENHA  ")
+        frase_tab = notebook.add("  FRASE-SENHA  ")
+        analyzer_tab = notebook.add("  ANALISADOR  ")
 
         self.tab_senha = PasswordTab(senha_tab, self)
         self.tab_frase = PassphraseTab(frase_tab, self)
@@ -130,18 +131,20 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def create_footer(self, parent_frame):
         """Cria o rodapé com o botão de configurações."""
         footer_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
-        footer_frame.grid(row=2, column=0, sticky="sew", pady=(10, 5), padx=10)
+        footer_frame.grid(row=2, column=0, sticky="ew", pady=(16, 8), padx=16)
+        footer_frame.grid_columnconfigure(0, weight=1) # Centraliza o conteúdo do rodapé
 
-        # O RODAPÉ ASSINADO: Configura a grade para empurrar a engrenagem para a direita
-        footer_frame.grid_columnconfigure(0, weight=1)
+        # Frame interno para agrupar o label e o botão
+        inner_footer_frame = customtkinter.CTkFrame(footer_frame, fg_color="transparent")
+        inner_footer_frame.grid(row=0, column=0)
 
         author_label = customtkinter.CTkLabel(
-            footer_frame,
+            inner_footer_frame,
             text="Desenvolvido por Victor Viana",
-            font=customtkinter.CTkFont(size=10),
-            text_color="gray70" # Cor sutil para o crédito
+            font=customtkinter.CTkFont(size=14, weight="bold"),
+            text_color="gray70"
         )
-        author_label.grid(row=0, column=0, sticky="w")
+        author_label.grid(row=0, column=0, sticky="e", padx=(0, 8))
 
         try:
             script_dir = os.path.dirname(__file__)
@@ -150,23 +153,23 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             self.gear_image = customtkinter.CTkImage(light_image=gear_image_pil, dark_image=gear_image_pil, size=(24, 24))
 
             settings_button = customtkinter.CTkButton(
-                footer_frame,
+                inner_footer_frame,
                 text="",
                 image=self.gear_image,
                 fg_color="transparent",
-                width=30,
-                height=30,
+                width=24,
+                height=24,
                 command=self.open_advanced_options
             )
-            settings_button.grid(row=0, column=1, sticky="e") # Alinhado à direita
+            settings_button.grid(row=0, column=1, sticky="w")
         except FileNotFoundError:
-            # Fallback caso o ícone não seja encontrado
             settings_button = customtkinter.CTkButton(
-                footer_frame,
+                inner_footer_frame,
                 text="Opções",
-                command=self.open_advanced_options
+                command=self.open_advanced_options,
+                font=customtkinter.CTkFont(size=14)
             )
-            settings_button.grid(row=0, column=1, sticky="e")
+            settings_button.grid(row=0, column=1, sticky="w")
 
     def open_advanced_options(self):
         """Abre a janela de opções avançadas."""
