@@ -46,8 +46,10 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # GARANTIA DE JANELA MAXIMIZADA
         self.geometry("1280x720")
-        self.update_idletasks()
-        self.wm_state('zoomed')
+
+        # O DECRETO DE MAXIMIZAÇÃO (SOLUÇÃO FINAL)
+        # Garante que a maximização ocorra após a janela estar pronta.
+        self.after(100, lambda: self.wm_state('zoomed'))
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -98,24 +100,26 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         content_frame = customtkinter.CTkFrame(shadow_frame, corner_radius=10)
         content_frame.grid(row=0, column=0, padx=2, pady=2)
         content_frame.grid_columnconfigure(0, weight=1)
-        content_frame.grid_rowconfigure(1, weight=1) # Linha do notebook deve expandir
 
-        # --- CABEÇALHO ---
+        # O SISTEMA DE ESPAÇAMENTO RÍTMICO
+        # Linha 1 (Conteúdo da Aba / Notebook) terá o maior peso para ocupar o espaço.
+        content_frame.grid_rowconfigure(1, weight=1)
+
+        # --- Linha 0: CABEÇALHO ---
         self.header_label = customtkinter.CTkLabel(
             content_frame,
             text="Gerador de Senhas - Unimed",
             font=customtkinter.CTkFont(size=24, weight="bold")
         )
-        self.header_label.grid(row=0, column=0, pady=16)
+        self.header_label.grid(row=0, column=0, pady=(20, 10))
 
         # O Animator agora usa o canvas preto e o novo header
         self.animator = UnimedWordAnimator(self.animation_canvas, self.header_label)
 
-        # --- ABAS (NOTEBOOK) ---
+        # --- Linha 1: ABAS (NOTEBOOK) ---
+        # Esta linha (1) tem weight=1 para expandir verticalmente.
         notebook = customtkinter.CTkTabview(content_frame, width=550, height=450)
-        # Nota do Arquiteto: O widget CTkTabView não suporta a configuração de fonte global. O estilo dev
-        # REFINAMENTO DE ESPAÇAMENTO (O RESPIRO)
-        notebook.grid(row=1, column=0, sticky="nsew", pady=24)
+        notebook.grid(row=1, column=0, sticky="nsew", pady=10)
         # ESTABILIDADE ABSOLUTA: Impede o notebook de redimensionar com o conteúdo das abas
         notebook.grid_propagate(False)
 
@@ -131,8 +135,9 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
     def create_footer(self, parent_frame):
         """Cria o rodapé com o botão de configurações."""
+        # No grid do content_frame, esta é a linha 2.
         footer_frame = customtkinter.CTkFrame(parent_frame, fg_color="transparent")
-        footer_frame.grid(row=2, column=0, sticky="ew", pady=(16, 8), padx=16)
+        footer_frame.grid(row=2, column=0, sticky="ew", pady=(10, 20), padx=16)
         footer_frame.grid_columnconfigure(0, weight=1) # Centraliza o conteúdo do rodapé
 
         # Frame interno para agrupar o label e o botão
