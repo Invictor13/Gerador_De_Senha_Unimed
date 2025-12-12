@@ -57,6 +57,7 @@ class AdvancedPasswordOptionsWindow(customtkinter.CTkToplevel):
 
         cb_ambiguos = customtkinter.CTkCheckBox(opcoes_frame, text="Excluir Caracteres Ambíguos", variable=self.app.vars['excluir_ambiguos'], font=customtkinter.CTkFont(size=14))
         cb_ambiguos.pack(anchor="w", pady=(8,4), padx=8)
+        Tooltip(cb_ambiguos, "Exclui caracteres que podem ser confundidos visualmente:\n'I', 'l', '1', 'O', '0', 'o'")
 
         # --- Checkbox de Animação ---
         customtkinter.CTkCheckBox(opcoes_frame, text="Ativar animação de fundo", variable=self.app.vars["animacao_ativa"], command=self.app.toggle_animation, font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)

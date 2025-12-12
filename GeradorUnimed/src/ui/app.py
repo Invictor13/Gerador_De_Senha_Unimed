@@ -168,6 +168,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
                 command=self.open_advanced_options
             )
             settings_button.grid(row=0, column=1, sticky="w")
+            Tooltip(settings_button, "Opções Avançadas")
         except FileNotFoundError:
             settings_button = customtkinter.CTkButton(
                 inner_footer_frame,
@@ -176,6 +177,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
                 font=customtkinter.CTkFont(size=14)
             )
             settings_button.grid(row=0, column=1, sticky="w")
+            Tooltip(settings_button, "Configurações e Preferências")
 
     def open_advanced_options(self):
         """Abre a janela de opções avançadas."""
