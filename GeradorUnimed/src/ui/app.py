@@ -249,6 +249,17 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             button.configure(text="Copiado!", state="disabled")
             self.after(1500, lambda: button.configure(text=original_text, state="normal"))
 
+            # Security: Clear clipboard after 60 seconds
+            self.after(60000, lambda: self.clear_clipboard(text))
+
+    def clear_clipboard(self, text):
+        """Limpa o clipboard se ele ainda contiver o texto sensível."""
+        try:
+            if pyperclip.paste() == text:
+                pyperclip.copy("")
+        except Exception:
+            pass
+
     def update_history(self, password):
         """Atualiza o histórico de senhas geradas."""
         if "Selecione" in password: return
