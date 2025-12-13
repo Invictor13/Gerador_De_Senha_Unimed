@@ -10,6 +10,7 @@ orquestrando todos os componentes e a lógica do programa.
 import os
 import secrets
 import string
+import threading
 import tkinter as tk
 import customtkinter
 
@@ -221,14 +222,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.vars["senha_gerada"].set(senha)
 
         # --- Verificação de Vazamento ---
-        is_pwned = check_pwned(senha)
-        if is_pwned:
-            self.tab_senha.status_frame.configure(fg_color="red")
-            self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        else:
-            self.tab_senha.status_frame.configure(fg_color="green")
-            self.tab_senha.status_label.configure(text="SENHA SEGURA")
-
+        self.check_pwned_async(senha)
 
         # A lógica da barra de entropia foi removida do novo design.
         self.update_history(senha)
@@ -279,14 +273,32 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # A lógica da barra de entropia foi removida do novo design.
         # A verificação de pwned também pode ser acionada aqui, se desejado.
-        is_pwned = check_pwned(choice)
+        self.check_pwned_async(choice)
+
+
+    def check_pwned_async(self, password):
+        """Verifica se a senha foi vazada em background para não travar a UI."""
+        self.tab_senha.status_frame.configure(fg_color="gray")
+        self.tab_senha.status_label.configure(text="Verificando vazamentos...")
+
+        def run_check():
+            try:
+                is_pwned = check_pwned(password)
+                self.after(0, lambda: self.update_pwned_status(is_pwned))
+            except Exception as e:
+                print(f"Error checking pwned status: {e}")
+                self.after(0, lambda: self.update_pwned_status(False))
+
+        threading.Thread(target=run_check, daemon=True).start()
+
+    def update_pwned_status(self, is_pwned):
+        """Atualiza a UI com o resultado da verificação de vazamento."""
         if is_pwned:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
         else:
             self.tab_senha.status_frame.configure(fg_color="green")
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
-
 
     def toggle_animation(self):
         """Ativa ou desativa a animação de fundo."""
