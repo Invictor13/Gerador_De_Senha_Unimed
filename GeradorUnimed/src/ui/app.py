@@ -222,12 +222,15 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # --- Verificação de Vazamento ---
         is_pwned = check_pwned(senha)
-        if is_pwned:
+        if is_pwned is True:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        else:
+        elif is_pwned is False:
             self.tab_senha.status_frame.configure(fg_color="green")
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
+        else:
+            self.tab_senha.status_frame.configure(fg_color="orange")
+            self.tab_senha.status_label.configure(text="ERRO NA VERIFICAÇÃO")
 
 
         # A lógica da barra de entropia foi removida do novo design.
@@ -280,12 +283,15 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         # A lógica da barra de entropia foi removida do novo design.
         # A verificação de pwned também pode ser acionada aqui, se desejado.
         is_pwned = check_pwned(choice)
-        if is_pwned:
+        if is_pwned is True:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        else:
+        elif is_pwned is False:
             self.tab_senha.status_frame.configure(fg_color="green")
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
+        else:
+            self.tab_senha.status_frame.configure(fg_color="orange")
+            self.tab_senha.status_label.configure(text="ERRO NA VERIFICAÇÃO")
 
 
     def toggle_animation(self):

@@ -43,12 +43,12 @@ def test_check_pwned_password_is_not_pwned(mocker):
 
 def test_check_pwned_api_error(mocker):
     """
-    Testa se check_pwned retorna False em caso de erro na API (ex: timeout).
+    Testa se check_pwned retorna None em caso de erro na API (ex: timeout).
     """
     # Mock para simular um erro de requisição
     mocker.patch('requests.get', side_effect=requests.RequestException("Connection Error"))
 
-    assert check_pwned("any_password") is False
+    assert check_pwned("any_password") is None
 
 def test_check_pwned_empty_password(mocker):
     """
