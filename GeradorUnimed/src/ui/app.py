@@ -213,8 +213,12 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         animate_step(10)
 
-    def update_pwned_status(self, is_pwned):
+    def update_pwned_status(self, is_pwned, checked_password=None):
         """Atualiza a UI com o resultado da verificação de senha vazada."""
+        # Se foi fornecida a senha verificada, garante que ela ainda é a atual na UI
+        if checked_password and self.vars["senha_gerada"].get() != checked_password:
+            return
+
         if is_pwned is True:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
@@ -241,7 +245,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         def run_check():
             result = check_pwned(senha)
-            self.after(0, lambda: self.update_pwned_status(result))
+            self.after(0, lambda: self.update_pwned_status(result, senha))
 
         threading.Thread(target=run_check, daemon=True).start()
 
@@ -297,20 +301,18 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
     def on_history_select(self, choice):
         """Lida com a seleção de uma senha do histórico."""
         self.vars["senha_gerada"].set(choice)
-        entropia = self.password_generator.analyze_password(choice, self.vars["caracteres_especiais_var"].get())
+        # self.password_generator.analyze_password(...) # (Removido se não usado)
 
         # A lógica da barra de entropia foi removida do novo design.
-        # A verificação de pwned também pode ser acionada aqui, se desejado.
-        is_pwned = check_pwned(choice)
-        if is_pwned is True:
-            self.tab_senha.status_frame.configure(fg_color="red")
-            self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        elif is_pwned is None:
-            self.tab_senha.status_frame.configure(fg_color="orange")
-            self.tab_senha.status_label.configure(text="ERRO DE CONEXÃO")
-        else:
-            self.tab_senha.status_frame.configure(fg_color="green")
-            self.tab_senha.status_label.configure(text="SENHA SEGURA")
+        # Usa o mesmo padrão assíncrono para evitar bloquear a UI e race conditions
+        self.tab_senha.status_frame.configure(fg_color="orange")
+        self.tab_senha.status_label.configure(text="Verificando...")
+
+        def run_check():
+            result = check_pwned(choice)
+            self.after(0, lambda: self.update_pwned_status(result, choice))
+
+        threading.Thread(target=run_check, daemon=True).start()
 
     def toggle_animation(self):
         """Ativa ou desativa a animação de fundo."""
