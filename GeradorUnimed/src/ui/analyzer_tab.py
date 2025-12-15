@@ -5,6 +5,7 @@ Módulo da Aba Analisador de Senha (UI)
 
 import customtkinter as ctk
 from src.logic import PasswordValidator
+from src.config import CONFIG
 
 class AnalyzerTab(ctk.CTkFrame):
     """
@@ -46,9 +47,15 @@ class AnalyzerTab(ctk.CTkFrame):
         )
         self.reveal_checkbox.grid(row=0, column=1, padx=10, pady=10)
 
+        # Barra de Força da Senha
+        self.strength_bar = ctk.CTkProgressBar(self, orientation="horizontal")
+        self.strength_bar.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="ew")
+        self.strength_bar.set(0)
+        self.strength_bar.configure(progress_color="red")
+
         # --- Frame de Critérios ---
         criteria_frame = ctk.CTkFrame(self, fg_color="transparent")
-        criteria_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        criteria_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         criteria_frame.grid_columnconfigure(0, weight=1)
 
         # HIERARQUIA TIPOGRÁFICA: Título em negrito
@@ -100,11 +107,31 @@ class AnalyzerTab(ctk.CTkFrame):
         password = self.password_entry.get()
         results = self.validator.analyze(password)
 
+        score = 0
+        total_criteria = len(results)
+
         for key, is_valid in results.items():
             label = self.criteria_labels[key]
             if is_valid:
+                score += 1
                 original_text = label.cget("text")[2:] # Remove o ícone antigo
                 label.configure(text=f"✔ {original_text}", text_color="green")
             else:
                 original_text = label.cget("text")[2:] # Remove o ícone antigo
                 label.configure(text=f"❌ {original_text}", text_color="red")
+
+        # Atualiza a barra de progresso
+        if not password:
+            self.strength_bar.set(0)
+            self.strength_bar.configure(progress_color="red")
+            return
+
+        normalized_score = score / total_criteria
+        self.strength_bar.set(normalized_score)
+
+        if normalized_score < 0.4:
+            self.strength_bar.configure(progress_color="red")
+        elif normalized_score < 0.8:
+            self.strength_bar.configure(progress_color="orange")
+        else:
+            self.strength_bar.configure(progress_color=CONFIG["CORES"]["VERDE_UNIMED"])
