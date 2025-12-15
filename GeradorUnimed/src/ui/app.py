@@ -10,6 +10,7 @@ orquestrando todos os componentes e a lógica do programa.
 import os
 import secrets
 import string
+import threading
 import tkinter as tk
 import customtkinter
 
@@ -292,7 +293,6 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         else:
             self.tab_senha.status_frame.configure(fg_color="orange")
             self.tab_senha.status_label.configure(text="ERRO NA VERIFICAÇÃO")
-
 
     def toggle_animation(self):
         """Ativa ou desativa a animação de fundo."""

@@ -7,6 +7,7 @@ da aplicação, como a geração de senhas e o gerenciamento de configurações.
 Não há código de interface gráfica aqui.
 """
 
+import functools
 import hashlib
 import json
 import math
@@ -153,11 +154,13 @@ def check_pwned(password: str) -> Optional[bool]:
     try:
         sha1_password = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
         prefix, suffix = sha1_password[:5], sha1_password[5:]
-        response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}", timeout=5)
-        response.raise_for_status()  # Lança exceção para códigos de erro HTTP
+
+        # Busca os hashes usando a função com cache
+        hashes_text = _fetch_pwned_hashes(prefix)
+
         # A resposta é uma lista de sufixos de hash e suas contagens
         # Ex: 0018A45C4D1DEF81644B54AB7F969B88D65:1
-        return any(line.startswith(suffix) for line in response.text.splitlines())
+        return any(line.startswith(suffix) for line in hashes_text.splitlines())
     except requests.RequestException:
         # Retorna None para indicar que a verificação falhou
         return None
