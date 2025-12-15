@@ -178,7 +178,23 @@ def check_pwned(password: str) -> Optional[bool]:
 
         # A resposta é uma lista de sufixos de hash e suas contagens
         # Ex: 0018A45C4D1DEF81644B54AB7F969B88D65:1
-        return any(line.startswith(suffix) for line in hashes_text.splitlines())
+
+        # Otimização: Busca direta na string em vez de splitlines() para evitar alocação de memória e loops desnecessários.
+        # Pwned Passwords retorna linhas no formato SUFFIX:COUNT separadas por \r\n ou \n.
+        target = suffix + ":"
+        idx = hashes_text.find(target)
+        if idx == -1:
+            return False
+
+        # Verifica se é o início do texto
+        if idx == 0:
+            return True
+
+        # Se não for o início, verifica se é precedido por uma quebra de linha (\n ou \r)
+        # Isso garante que não encontramos o sufixo como parte de outro hash ou contagem (o que seria estatisticamente impossível dado o tamanho, mas a verificação é correta)
+        prev_char = hashes_text[idx - 1]
+        return prev_char in ('\n', '\r')
+
     except requests.RequestException:
         # Em caso de erro de rede ou timeout, retornamos None para indicar falha na verificação.
         return None
