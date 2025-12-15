@@ -221,8 +221,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         )
         self.vars["senha_gerada"].set(senha)
 
-        # --- Verificação de Vazamento (Async) ---
-        self._check_pwned_async(senha)
+        # --- Verificação de Vazamento ---
+        self.check_pwned_async(senha)
 
         # A lógica da barra de entropia foi removida do novo design.
         self.update_history(senha)
@@ -273,29 +273,26 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         # A lógica da barra de entropia foi removida do novo design.
         # A verificação de pwned também pode ser acionada aqui, se desejado.
-        self._check_pwned_async(choice)
+        self.check_pwned_async(choice)
 
 
-    def _check_pwned_async(self, password):
-        """Inicia a verificação de vazamento em uma thread separada."""
-        self.tab_senha.status_frame.configure(fg_color="transparent")
-        self.tab_senha.status_label.configure(text="Verificando...")
+    def check_pwned_async(self, password):
+        """Verifica se a senha foi vazada em background para não travar a UI."""
+        self.tab_senha.status_frame.configure(fg_color="gray")
+        self.tab_senha.status_label.configure(text="Verificando vazamentos...")
 
         def run_check():
             try:
                 is_pwned = check_pwned(password)
-                self.after(0, lambda: self._update_pwned_status(is_pwned, password))
+                self.after(0, lambda: self.update_pwned_status(is_pwned))
             except Exception as e:
                 print(f"Error checking pwned status: {e}")
+                self.after(0, lambda: self.update_pwned_status(False))
 
         threading.Thread(target=run_check, daemon=True).start()
 
-    def _update_pwned_status(self, is_pwned, password_checked):
-        """Atualiza a UI com o resultado da verificação, se a senha ainda for a mesma."""
-        # Se a senha na tela mudou enquanto verificávamos, ignoramos o resultado antigo
-        if self.vars["senha_gerada"].get() != password_checked:
-            return
-
+    def update_pwned_status(self, is_pwned):
+        """Atualiza a UI com o resultado da verificação de vazamento."""
         if is_pwned:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
