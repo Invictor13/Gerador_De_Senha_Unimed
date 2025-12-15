@@ -7,6 +7,7 @@ da aplicação, como a geração de senhas e o gerenciamento de configurações.
 Não há código de interface gráfica aqui.
 """
 
+import functools
 import hashlib
 import json
 import math
@@ -135,6 +136,17 @@ class PasswordGenerator:
         except IndexError:
             return "Lista de palavras vazia!", 0
 
+@functools.lru_cache(maxsize=128)
+def _fetch_pwned_hashes(prefix: str) -> str:
+    """
+    Busca os sufixos de hash para um dado prefixo na API Pwned Passwords.
+    O resultado é armazenado em cache para evitar requisições repetidas.
+    """
+    response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}", timeout=5)
+    response.raise_for_status()
+    return response.text
+
+
 def check_pwned(password: str) -> bool:
     """
     Verifica se a senha aparece em vazamentos de dados usando a API Pwned Passwords.
@@ -150,11 +162,13 @@ def check_pwned(password: str) -> bool:
     try:
         sha1_password = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
         prefix, suffix = sha1_password[:5], sha1_password[5:]
-        response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}", timeout=5)
-        response.raise_for_status()  # Lança exceção para códigos de erro HTTP
+
+        # Busca os hashes usando a função com cache
+        hashes_text = _fetch_pwned_hashes(prefix)
+
         # A resposta é uma lista de sufixos de hash e suas contagens
         # Ex: 0018A45C4D1DEF81644B54AB7F969B88D65:1
-        return any(line.startswith(suffix) for line in response.text.splitlines())
+        return any(line.startswith(suffix) for line in hashes_text.splitlines())
     except requests.RequestException:
         # Em caso de erro de rede ou timeout, consideramos a senha como segura
         # para não impedir o usuário de usar a senha.
