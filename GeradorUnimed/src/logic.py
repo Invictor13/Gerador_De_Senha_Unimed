@@ -51,22 +51,7 @@ class SettingsManager:
 class PasswordValidator:
     """Valida a força de uma senha com base em um conjunto de regras."""
     COMMON_NAMES = ['joao', 'maria', 'ana', 'pedro', 'paulo', 'unimed']
-
-    def _has_minimum_length(self, password: str) -> bool:
-        """Verifica se a senha tem o comprimento mínimo de 10 caracteres."""
-        return len(password) >= 10
-
-    def _has_upper_and_lower_case(self, password: str) -> bool:
-        """Verifica se a senha contém caracteres maiúsculos e minúsculos."""
-        return any(c.isupper() for c in password) and any(c.islower() for c in password)
-
-    def _has_number(self, password: str) -> bool:
-        """Verifica se a senha contém pelo menos um número."""
-        return any(c.isdigit() for c in password)
-
-    def _has_symbol(self, password: str) -> bool:
-        """Verifica se a senha contém pelo menos um caractere de pontuação."""
-        return any(c in string.punctuation for c in password)
+    MIN_LENGTH = 10
 
     def _has_no_common_names(self, password: str) -> bool:
         """Verifica se a senha não contém nomes próprios comuns."""
@@ -77,11 +62,29 @@ class PasswordValidator:
         """
         Analisa a senha e retorna um dicionário com os resultados da validação.
         """
+        has_upper = False
+        has_lower = False
+        has_number = False
+        has_symbol = False
+
+        for char in password:
+            if not has_upper and char.isupper():
+                has_upper = True
+            if not has_lower and char.islower():
+                has_lower = True
+            if not has_number and char.isdigit():
+                has_number = True
+            if not has_symbol and char in string.punctuation:
+                has_symbol = True
+
+            if has_upper and has_lower and has_number and has_symbol:
+                break
+
         return {
-            'length_ok': self._has_minimum_length(password),
-            'case_ok': self._has_upper_and_lower_case(password),
-            'has_number': self._has_number(password),
-            'has_symbol': self._has_symbol(password),
+            'length_ok': len(password) >= self.MIN_LENGTH,
+            'case_ok': has_upper and has_lower,
+            'has_number': has_number,
+            'has_symbol': has_symbol,
             'no_common_names': self._has_no_common_names(password),
         }
 

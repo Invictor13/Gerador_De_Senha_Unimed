@@ -1,0 +1,3 @@
+## 2024-05-23 - Python Loop Optimization vs C-Extension Functions
+**Learning:** Reimplementing `any()` checks with a single Python loop is slower than multiple `any()` passes because `any()` is optimized in C and short-circuits. However, adding an explicit `break` in the Python loop when all conditions are met makes it significantly faster (27%) by avoiding redundant checks that `any()` implicitly handles, while also consolidating the overhead of multiple passes.
+**Action:** When consolidating multiple iterations into one, always ensure you have early exit conditions that match or exceed the efficiency of the original individual checks.
