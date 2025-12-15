@@ -140,6 +140,21 @@ class PasswordGenerator:
         except IndexError:
             return "Lista de palavras vazia!", 0
 
+@functools.lru_cache(maxsize=128)
+def _fetch_pwned_hashes(prefix: str) -> str:
+    """
+    Busca os hashes que correspondem ao prefixo na API Pwned Passwords.
+    O resultado é cacheado para evitar requisições repetidas.
+    """
+    url = f"https://api.pwnedpasswords.com/range/{prefix}"
+    headers = {
+        'User-Agent': 'GeradorSenhaUnimed/1.0'
+    }
+    response = requests.get(url, headers=headers, timeout=5)
+    response.raise_for_status()
+    return response.text
+
+
 def check_pwned(password: str) -> Optional[bool]:
     """
     Verifica se a senha aparece em vazamentos de dados usando a API Pwned Passwords.
