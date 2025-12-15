@@ -226,7 +226,10 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         if is_pwned is True:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        elif is_pwned is False:
+        elif is_pwned is None:
+            self.tab_senha.status_frame.configure(fg_color="orange")
+            self.tab_senha.status_label.configure(text="ERRO DE CONEXÃO")
+        else:
             self.tab_senha.status_frame.configure(fg_color="green")
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
         else:
@@ -287,7 +290,10 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         if is_pwned is True:
             self.tab_senha.status_frame.configure(fg_color="red")
             self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        elif is_pwned is False:
+        elif is_pwned is None:
+            self.tab_senha.status_frame.configure(fg_color="orange")
+            self.tab_senha.status_label.configure(text="ERRO DE CONEXÃO")
+        else:
             self.tab_senha.status_frame.configure(fg_color="green")
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
         else:

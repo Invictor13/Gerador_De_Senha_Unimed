@@ -145,9 +145,9 @@ def check_pwned(password: str) -> Optional[bool]:
         password: A senha para verificar.
 
     Returns:
-        True se a senha foi encontrada em um vazamento.
-        False se a senha NÃO foi encontrada (segura).
-        None se houve erro na verificação (falha na rede/API).
+        True se a senha foi encontrada em um vazamento,
+        False se a senha NÃO foi encontrada (segura),
+        None se houver erro de conexão/API.
     """
     if not password:
         return False
@@ -162,5 +162,5 @@ def check_pwned(password: str) -> Optional[bool]:
         # Ex: 0018A45C4D1DEF81644B54AB7F969B88D65:1
         return any(line.startswith(suffix) for line in hashes_text.splitlines())
     except requests.RequestException:
-        # Retorna None para indicar que a verificação falhou
+        # Em caso de erro de rede ou timeout, retornamos None para indicar falha na verificação.
         return None
