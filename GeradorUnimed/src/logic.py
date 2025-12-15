@@ -14,6 +14,7 @@ import math
 import os
 import secrets
 import string
+from typing import Optional
 
 import requests
 
@@ -136,18 +137,7 @@ class PasswordGenerator:
         except IndexError:
             return "Lista de palavras vazia!", 0
 
-@functools.lru_cache(maxsize=128)
-def _fetch_pwned_hashes(prefix: str) -> str:
-    """
-    Busca os sufixos de hash para um dado prefixo na API Pwned Passwords.
-    O resultado é armazenado em cache para evitar requisições repetidas.
-    """
-    response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}", timeout=5)
-    response.raise_for_status()
-    return response.text
-
-
-def check_pwned(password: str) -> bool:
+def check_pwned(password: str) -> Optional[bool]:
     """
     Verifica se a senha aparece em vazamentos de dados usando a API Pwned Passwords.
 
@@ -155,7 +145,9 @@ def check_pwned(password: str) -> bool:
         password: A senha para verificar.
 
     Returns:
-        True se a senha foi encontrada em um vazamento, False caso contrário.
+        True se a senha foi encontrada em um vazamento.
+        False se a senha NÃO foi encontrada (segura).
+        None se houve erro na verificação (falha na rede/API).
     """
     if not password:
         return False
@@ -170,6 +162,5 @@ def check_pwned(password: str) -> bool:
         # Ex: 0018A45C4D1DEF81644B54AB7F969B88D65:1
         return any(line.startswith(suffix) for line in hashes_text.splitlines())
     except requests.RequestException:
-        # Em caso de erro de rede ou timeout, consideramos a senha como segura
-        # para não impedir o usuário de usar a senha.
-        return False
+        # Retorna None para indicar que a verificação falhou
+        return None
