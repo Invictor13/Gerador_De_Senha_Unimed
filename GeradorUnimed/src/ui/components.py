@@ -62,6 +62,9 @@ class AdvancedPasswordOptionsWindow(customtkinter.CTkToplevel):
         # --- Checkbox de Animação ---
         customtkinter.CTkCheckBox(opcoes_frame, text="Ativar animação de fundo", variable=self.app.vars["animacao_ativa"], command=self.app.toggle_animation, font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)
 
+        # --- Checkbox de Modo Corporativo ---
+        customtkinter.CTkCheckBox(opcoes_frame, text="Modo Corporativo (Limpo)", variable=self.app.vars["modo_corporativo"], command=self.app.toggle_corporate_mode, font=customtkinter.CTkFont(size=14)).pack(anchor="w", pady=4, padx=8)
+
         # --- Botão de Fechar ---
         unimed_color = CONFIG["CORES"]["VERDE_UNIMED"]
         close_button = customtkinter.CTkButton(main_frame, text="Fechar", command=self.destroy, fg_color=unimed_color, hover_color=unimed_color, font=customtkinter.CTkFont(size=14))
@@ -105,7 +108,7 @@ class PasswordTab(customtkinter.CTkFrame):
         # Botão "Gerar Senha" (Coluna 0)
         self.gerar_senha_btn = customtkinter.CTkButton(
             actions_panel,
-            text="Gerar Senha",
+            text="🔄 Gerar Senha",
             command=self.generate_password,
             height=40,
             font=customtkinter.CTkFont(size=14, weight="bold"),
@@ -116,7 +119,7 @@ class PasswordTab(customtkinter.CTkFrame):
         # Botão "Copiar" (Coluna 1)
         self.copiar_btn = customtkinter.CTkButton(
             actions_panel,
-            text="Copiar",
+            text="📋 Copiar",
             command=lambda: self.app.copy_to_clipboard(self.app.vars["senha_gerada"].get(), self.copiar_btn),
             height=40,
             font=customtkinter.CTkFont(size=14)
@@ -168,6 +171,7 @@ class PassphraseTab(customtkinter.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         self.app = app_controller
         self.wordlists = {} # Mapeia nome amigável para caminho do arquivo
+        self.full_wordlist_content = []
         self.pack(fill="both", expand=True)
 
         self._load_wordlist_options()
@@ -259,19 +263,27 @@ class PassphraseTab(customtkinter.CTkFrame):
 
         self.wordlist_text.config(state="normal")
         self.wordlist_text.delete("1.0", tk.END)
+        self.full_wordlist_content = []
 
-        word_string = ""
         if filepath:
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
-                    word_string = f.read()
-            except Exception as e:
-                word_string = f"Erro ao ler o arquivo:\n{e}"
+                    content = f.read()
+                    self.full_wordlist_content = content.split()
 
-        self.wordlist_text.insert("1.0", word_string.replace(" ", "\n"))
+                    # Exibe apenas as primeiras 100 linhas para performance
+                    preview_lines = content.splitlines()[:100]
+                    preview_text = "\n".join(preview_lines)
+                    if len(content.splitlines()) > 100:
+                        preview_text += "\n\n... (lista completa carregada na memória)"
+
+                    self.wordlist_text.insert("1.0", preview_text)
+            except Exception as e:
+                self.wordlist_text.insert("1.0", f"Erro ao ler o arquivo:\n{e}")
+        else:
+            pass
 
         if selection != "Personalizado...":
             self.wordlist_text.config(state="disabled")
         else:
-            # Tooltip(self.wordlist_text, "Cole sua lista de palavras aqui, uma por linha.")
             pass

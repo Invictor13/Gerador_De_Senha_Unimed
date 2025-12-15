@@ -37,6 +37,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         self.settings = self.settings_manager.load_settings()
         self.password_history = []
         self.advanced_options_window = None
+        self.clipboard_timer = None
 
 
         # --- Configuração do Tema e Janela ---
@@ -80,7 +81,8 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             "excluir_ambiguos": tk.BooleanVar(value=self.settings["excluir_ambiguos"]),
             "animacao_ativa": tk.BooleanVar(value=self.settings["animacao_ativa"]),
             "caracteres_especiais_var": tk.StringVar(value=self.settings["caracteres_especiais"]),
-            "lista_palavras_selecionada_var": tk.StringVar(value=self.settings["lista_palavras_selecionada"])
+            "lista_palavras_selecionada_var": tk.StringVar(value=self.settings["lista_palavras_selecionada"]),
+            "modo_corporativo": tk.BooleanVar(value=False)
         }
 
     def create_main_widgets(self):
@@ -211,6 +213,18 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
         animate_step(10)
 
+    def update_pwned_status(self, is_pwned):
+        """Atualiza a UI com o resultado da verificação de senha vazada."""
+        if is_pwned is True:
+            self.tab_senha.status_frame.configure(fg_color="red")
+            self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
+        elif is_pwned is None:
+            self.tab_senha.status_frame.configure(fg_color="orange")
+            self.tab_senha.status_label.configure(text="ERRO DE CONEXÃO")
+        else:
+            self.tab_senha.status_frame.configure(fg_color="green")
+            self.tab_senha.status_label.configure(text="SENHA SEGURA")
+
     def finalize_password_generation(self):
         """Chama o gerador e atualiza a UI com a nova senha."""
         senha, entropia = self.password_generator.generate(
@@ -221,21 +235,15 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         )
         self.vars["senha_gerada"].set(senha)
 
-        # --- Verificação de Vazamento ---
-        is_pwned = check_pwned(senha)
-        if is_pwned is True:
-            self.tab_senha.status_frame.configure(fg_color="red")
-            self.tab_senha.status_label.configure(text="ALERTA: SENHA VAZADA!")
-        elif is_pwned is None:
-            self.tab_senha.status_frame.configure(fg_color="orange")
-            self.tab_senha.status_label.configure(text="ERRO DE CONEXÃO")
-        else:
-            self.tab_senha.status_frame.configure(fg_color="green")
-            self.tab_senha.status_label.configure(text="SENHA SEGURA")
-        else:
-            self.tab_senha.status_frame.configure(fg_color="orange")
-            self.tab_senha.status_label.configure(text="ERRO NA VERIFICAÇÃO")
+        # --- Verificação de Vazamento (Assíncrona) ---
+        self.tab_senha.status_frame.configure(fg_color="orange")
+        self.tab_senha.status_label.configure(text="Verificando...")
 
+        def run_check():
+            result = check_pwned(senha)
+            self.after(0, lambda: self.update_pwned_status(result))
+
+        threading.Thread(target=run_check, daemon=True).start()
 
         # A lógica da barra de entropia foi removida do novo design.
         self.update_history(senha)
@@ -243,7 +251,11 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
     def finalize_passphrase_generation(self):
         """Chama o gerador e atualiza a UI com a nova frase-senha."""
-        user_wordlist = self.tab_frase.wordlist_text.get("1.0", "end-1c").split()
+        if self.tab_frase.full_wordlist_content:
+            user_wordlist = self.tab_frase.full_wordlist_content
+        else:
+            user_wordlist = self.tab_frase.wordlist_text.get("1.0", "end-1c").split()
+
         frase, entropia = self.password_generator.generate_passphrase(
             self.vars["num_palavras_var"].get(), self.vars["separador_var"].get(), user_wordlist
         )
@@ -259,13 +271,16 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
             self.after(1500, lambda: button.configure(text=original_text, state="normal"))
 
             # Security: Clear clipboard after 60 seconds
-            self.after(60000, lambda: self.clear_clipboard(text))
+            if self.clipboard_timer:
+                self.after_cancel(self.clipboard_timer)
+            self.clipboard_timer = self.after(60000, lambda: self.clear_clipboard(text))
 
     def clear_clipboard(self, text):
         """Limpa o clipboard se ele ainda contiver o texto sensível."""
         try:
             if pyperclip.paste() == text:
                 pyperclip.copy("")
+            self.clipboard_timer = None
         except Exception:
             pass
 
@@ -296,16 +311,32 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
         else:
             self.tab_senha.status_frame.configure(fg_color="green")
             self.tab_senha.status_label.configure(text="SENHA SEGURA")
-        else:
-            self.tab_senha.status_frame.configure(fg_color="orange")
-            self.tab_senha.status_label.configure(text="ERRO NA VERIFICAÇÃO")
 
     def toggle_animation(self):
         """Ativa ou desativa a animação de fundo."""
+        if self.vars["modo_corporativo"].get():
+            # No modo corporativo, a animação deve ficar desligada
+            self.animator.stop()
+            return
+
         if self.vars["animacao_ativa"].get():
             self.animator.start()
         else:
             self.animator.stop()
+
+    def toggle_corporate_mode(self):
+        """Alterna entre o modo normal e o modo corporativo (limpo)."""
+        if self.vars["modo_corporativo"].get():
+            # Ativar modo corporativo
+            self.animator.stop()
+            self.configure(bg="#1a1a1a") # Cinza escuro
+            self.animation_canvas.place_forget() # Esconde o canvas
+        else:
+            # Desativar modo corporativo (voltar ao normal)
+            self.configure(bg="black")
+            self.animation_canvas.place(relwidth=1, relheight=1)
+            if self.vars["animacao_ativa"].get():
+                self.animator.start()
 
     def on_closing(self):
         """Salva as configurações ao fechar a aplicação."""
@@ -317,7 +348,7 @@ class UnimedPasswordGeneratorApp(customtkinter.CTk):
 
     def handle_focus_in(self, event):
         """Reinicia a animação quando a janela ganha foco."""
-        if self.vars["animacao_ativa"].get():
+        if self.vars["animacao_ativa"].get() and not self.vars["modo_corporativo"].get():
             self.animator.start()
 
     def handle_focus_out(self, event):
